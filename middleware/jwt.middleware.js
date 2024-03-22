@@ -23,7 +23,7 @@ module.exports = (req, res, next) => {
 			console.log('Missing JWT token.')
 		} else console.error(error);
 		
-		
+	
         // res.redirect('/');
 		res.clearCookie(process.env.JWT_NAME)
         res.status(401).json({ message: error.message, success: false  });
