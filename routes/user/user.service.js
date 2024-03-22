@@ -1,9 +1,12 @@
 const bcrypt = require('bcrypt');
 const User = require('../../routes/user/user.model.js');
 
+const Notification = require('../../models/notification.model.js');
 const userInfo = new (require('../../functions/user.function.js'));
-
+const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+
+
 
 const loginUser = async (req, res, next) => {
 
@@ -14,18 +17,18 @@ const loginUser = async (req, res, next) => {
         const user = await User.findOne({ username });
         if (!user) {
 			console.log(user);
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found', success: false });
         }
 
         // Compare passwords
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
 			console.log(match);
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Invalid credentials', success: false });
         }
 
         // Generate JWT token
-        const token = jwt.sign({ _id: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '12h' });
+        const token = jwt.sign({ _id: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         // Attach user and token to request object
         req.user = user;
@@ -33,13 +36,14 @@ const loginUser = async (req, res, next) => {
 		
 		// Set the cookie en send json token back
 		res.cookie('JWT_TOKEN', token, { httpOnly: true });
-		res.status(200).json({ message: "You have been logged in successfully", jwt: token });
+		res.status(200).json({ message: "You have been logged in successfully", jwt: token, success: true });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message, success: false });
     }
     
 };
+
 
 const registerUser = async (req, res, next) => {
     const { username, password } = req.body;
@@ -51,22 +55,14 @@ const registerUser = async (req, res, next) => {
 		});
     }
 
-    const usernameExists = await User.findOne({ username });
-    
-    if (usernameExists) {
-        return res.status(200).json({
-            success: false,
-            message: 'Username already exists'
-        });
-    }
+	const usernameExists = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
 
-    if (password.length < 8) {
-        return res.status(200).json({
-            success: false,
-            message: 'Password must be atleast 8 characters'
-        });
-    }
-
+	if (usernameExists) {
+		return res.status(200).json({
+			success: false,
+			message: 'Username already exists'
+		});
+	}
     if (username.length < 3) {
         return res.status(200).json({
             success: false,
@@ -129,33 +125,92 @@ const registerUser = async (req, res, next) => {
 
 }
 
-const getUser = async (req, res, next) => {
-	let username = req.params.username
-	
 
-	userInfo.getInfo(username).then(data => {
-
-		// need to stringify to fix for model
-		//_id: new ObjectId('65fa9784b2faffeafca95f20'),
-		//SyntaxError: Expected property name or '}' in JSON at position 4 (line 2 column 3)
-
-
-		let json = JSON.parse(JSON.stringify(data))
-		delete json.password;
-		delete json._id;
-
-		return res.status(200).json(json);
-	})
+// need to update
+const logoutUser = async (req, res, next) => {
+	res.clearCookie(process.env.JWT_NAME)
 }
 
-// const getComments = async (req, res, next) => {
-// 	let id = req.params.id
-// 	let postId = req.params.postId
-// 	userInfo.getComments(id, postId).then(data => {
-// 		console.log(data)
-// 		return res.status(200).json(data);
-// 	})
-// }
+
+const addFriend = async (req, res, next) => {
+    try {
+		let username = req.params.username
+
+		if (username == req.userData.username) {
+			return res.status(500).json({ message: "You cannot add yourself", success: false })
+		}
+
+        const updatedUser = await userInfo.addFriend(username);
+
+        return res.status(200).json({ message: "Friend added successfully", success: false   });
+    } catch (error) {
+        // Return error response
+        return res.status(500).json({ message: error.message, success: false  });
+    }
+};
+
+const sendMessage = async (req, res, next) => {
+    try {
+        const UD = req.userData; // Assuming req.user is properly set in middleware
+
+		let username = req.params.username
+
+        const { title, content } = req.body;
+
+        // Call the createNotification method to create the notification
+        const newNotification = await userInfo.createNotification(username, title, content, UD._id);
+
+        // Return the created notification in the response
+        return res.status(200).json({
+            success: true,
+            message: 'Notification created successfully',
+            notification: newNotification
+        });
+    } catch (error) {
+        // Return error response
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const getNotifications = async (req, res, next) => {
+    try {
+        const currentUserUsername = req.userData.username;
+
+        // Continue with retrieving notifications for the current user
+        // Example logic to retrieve notifications...
+        const notifications = await userInfo.getNotificationsByUsername(currentUserUsername);
+
+        // Return the notifications
+        res.status(200).json({ notifications });
+    } catch (error) {
+        // Handle any errors
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+const getUser = async (req, res, next) => {
+	try {
+		let username = req.params.username
+		
+	
+		userInfo.getInfo(username).then(data => {
+	
+			// need to stringify to fix for model
+			//_id: new ObjectId('65fa9784b2faffeafca95f20'),
+			//SyntaxError: Expected property name or '}' in JSON at position 4 (line 2 column 3)
+	
+	
+			let json = JSON.parse(JSON.stringify(data))
+			delete json.password;
+			delete json._id;
+	
+			return res.status(200).json(json);
+		})
+	} catch (error) {
+		// Return error response
+		return res.status(500).json({ message: error.message, success: false  });
+	}
+}
 
 
-module.exports = { loginUser, registerUser, getUser, /* getComments */ };
+module.exports = { loginUser, registerUser, getUser, logoutUser, addFriend, sendMessage, getNotifications };

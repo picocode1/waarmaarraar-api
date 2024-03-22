@@ -18,5 +18,6 @@ router.post('/addReaction', jwtCheck, (req, res) => forumService.addReaction(req
 router.get('/getCommentsByPost/:postId', jwtCheck ,(req, res) => forumService.getCommentsByPost(req, res));
 router.get('/getCommentsByUser/:userId', jwtCheck ,(req, res) => forumService.getCommentsByUser(req, res));
 
+router.get('/getArticles', jwtCheck ,(req, res) => forumService.getArticles(req, res));
 
 module.exports = router;

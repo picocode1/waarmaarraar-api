@@ -19,6 +19,7 @@ global.roles = {};
 
 // userInfo.updateUserRank("rik", "Administrator")
 // userInfo.incrementField("rik", "comments_count", 1)
+// userInfo.getInfo("rik")
 
 // Function to populate the global roles object with role IDs
 async function populateRolesObject() {
@@ -31,8 +32,6 @@ async function populateRolesObject() {
             const role = allRoles[i];
             global.roles[role.name] = role._id.toString();
         }
-
-        console.log("Global roles object populated successfully");
 		console.log(global.roles);
     } catch (error) {
         console.error("Error populating global roles object:", error);
@@ -85,6 +84,13 @@ app.use(require('./middleware/sanitize.middleware'))
 app.use(require('./middleware/logger.middleware'))
 app.use(require('./middleware/mobile.middleware')) // req.isMobile - use anywhere to check if user is using a phone
 
+
+// Middleware to set the CORS headers
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Accept');
+    next();
+});
 
 app.use(express.static(__dirname + '/public'));
 app.disable('x-powered-by');

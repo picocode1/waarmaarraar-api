@@ -20,7 +20,7 @@ const createPost = async (req, res) => {
 
         const userData = await User.findOne({ username: UD.username });
 
-        const { title, content, category, meta_tags } = req.body;
+        const { title, content, category, meta_tags, image } = req.body;
         
 		if (!content) {
 			res.status(400).json({ message: "Missing content" });
@@ -36,12 +36,14 @@ const createPost = async (req, res) => {
             _id: new mongoose.Types.ObjectId(),
 			user_id: userData._id,
 			
+			username: UD.username,
 			title,
 			content,
 			category: category ?? "",
 			meta_tags: meta_tags ?? [],
 			created_at: new Date(),
-			is_article: false
+			is_article: false,
+			image
         });
         
 
@@ -51,10 +53,11 @@ const createPost = async (req, res) => {
         // Respond with success message
         res.status(200).json({ message: 'Post created successfully', 
 			// Remove later, only for testing
-			post: savedPost 
+			post: savedPost,
+			success: true
 		});
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message, success: false  });
     }
 };
 
@@ -96,10 +99,11 @@ const addComment = async (req, res) => {
         // Respond with success message
         res.status(200).json({ message: 'Comment created successfully', 
 			// Remove later, only for testing
-			post: savedComment 
+			post: savedComment, 
+			success: true
 		});
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message, success: false  });
     }
 };
 
@@ -109,7 +113,7 @@ const createArticle = async (req, res) => {
 		// If authentication succeeds, continue with createArticle logic
         const UD = req.userData; // Assuming req.user is properly set in middleware
 
-		const userData = await User.findOne({ username: UD.username }).populate('role');
+		const userData = await User.findOne({ username: UD.username }).populate('notifications').populate('role');
 
 		
         // not tested
@@ -129,7 +133,7 @@ const createArticle = async (req, res) => {
 			return;
 		}
 
-        const { title, content, category, meta_tags } = req.body;
+        const { title, content, category, meta_tags, image } = req.body;
         
 		if (!content) {
 			res.status(400).json({ message: "Missing content" });
@@ -146,12 +150,14 @@ const createArticle = async (req, res) => {
             _id: new mongoose.Types.ObjectId(),
 			user_id: userData._id,
 			
+			username: UD.username,
 			title,
 			content,
 			category: category ?? "",
 			meta_tags: meta_tags ?? [],
 			created_at: new Date(),
-			is_article: true
+			is_article: true,
+			image
         });
         
 
@@ -161,10 +167,11 @@ const createArticle = async (req, res) => {
         // Respond with success message
         res.status(200).json({ message: 'Article created successfully', 
 			// Remove later, only for testing
-			post: savedArticle 
+			post: savedArticle,
+			success: true
 		});
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message, success: false  });
     }
 }
 
@@ -206,10 +213,11 @@ const addReaction = async (req, res) => {
         // Respond with success message
         res.status(200).json({ message: 'Reaction added successfully', 
 			// Remove later, only for testing
-			post: savedReaction 
+			post: savedReaction, 
+			success: true 
 		});
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message, success: false  });
     }
 }
 
@@ -219,26 +227,31 @@ const getCommentsByPost = async (req, res) => {
         const { postId } = req.params;
 
         // Retrieve comments by post ID
-        const comments = await userInfo.getComments(null, postId);
-
-        // Respond with the comments
-        res.json(comments);
+        const comments = await userInfo.getCommentsByPost(postId);
+		res.status(200).json({ comments, success: true });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message, success: false  });
     }
 };
 
 const getCommentsByUser = async (req, res) => {
-    try {
-        const { userId } = req.params;
-
+	try {
+		const { userId } = req.params;
+		
         // Retrieve comments by user ID
         const comments = await userInfo.getCommentsByUser(userId);
-
-        // Respond with the comments
-        res.json(comments);
+		res.status(200).json({ comments, success: true });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+		res.status(500).json({ message: error.message, success: false  });
+    }
+};
+
+const getArticles = async (req, res) => {
+    try {
+        const articles = await userInfo.getArticles();
+        res.status(200).json(articles);
+    } catch (error) {
+        res.status(500).json({ error: `Failed to get articles: ${error.message}` });
     }
 };
 
@@ -248,5 +261,6 @@ module.exports = {
 	addComment, 
 	addReaction,
 	getCommentsByPost,
-	getCommentsByUser
+	getCommentsByUser,
+	getArticles
 }

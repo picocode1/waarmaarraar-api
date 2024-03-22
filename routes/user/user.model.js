@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema({
     forum_posts_count: Number,
     last_forum_post: Date,
     tags: [String],
-    friends: [String]
+    friends: [String],
+	notifications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Notification' }] // Reference to the Notification model
 }, { versionKey: false });
 
 // Create the User model based on the schema

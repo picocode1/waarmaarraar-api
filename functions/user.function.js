@@ -1,6 +1,8 @@
 const User = require('../routes/user/user.model');
 const Comments = require('../routes/forum/models/comment.model')
 const Role = require('../models/roles.model')
+const Notification = require('../models/notification.model')
+const Post = require('../routes/forum/models/post.model')
 
 
 const user = user => { return { username: user }}
@@ -84,20 +86,13 @@ class userInfo {
 		}
 	}
 
-	async getComments(id, postId) {
-		console.log({"getComments": id, "postId": postId})
 
-		if (!postId) {
-			return Comments.find({user_id: id}).then(json => {
-				return json
-			})
-		}
-		
-		return Comments.find({user_id: id, post_id: postId}).then(json => {
-			return json
-		})
-	}
-
+	/**
+	 * Get comments by user ID.
+	 * @param {string} userId - The user ID.
+	 * @returns {Array} - Array of comments.
+	 * @throws {Error} If fetching comments fails.
+	 */
 	async getCommentsByUser(userId) {
 		try {
 			const comments = await Comments.find({ user_id: userId });
@@ -106,7 +101,13 @@ class userInfo {
 			throw new Error(`Failed to get comments by user: ${error.message}`);
 		}
 	}
-	
+
+	/**
+	 * Get comments by post ID.
+	 * @param {string} postId - The post ID.
+	 * @returns {Array} - Array of comments.
+	 * @throws {Error} If fetching comments fails.
+	 */
 	async getCommentsByPost(postId) {
 		try {
 			const comments = await Comments.find({ post_id: postId });
@@ -116,9 +117,114 @@ class userInfo {
 		}
 	}
 
-	getPosts(username) {
-		/* .. */
+	/**
+	 * Add a friend to the user's friend list.
+	 * @param {string} username - The username of the friend to add.
+	 * @returns {Object} - The updated user object.
+	 * @throws {Error} If user not found or if adding friend fails.
+	 */
+	async addFriend(username) {
+		try {
+			// Step 1: Find the user by username to get their ID
+			const user = await User.findOne({ username: username });
+			if (!user) {
+				throw new Error("User not found");
+			}
+	
+			// Step 2: Update the user document to add the friend's ID to the friends array if it doesn't already exist
+			const updatedUser = await User.findOneAndUpdate(
+				{ username: username, "friends": { $nin: [user._id] } }, // Check if friend's ID doesn't already exist in the array
+				{ $addToSet: { friends: user._id } }, // Add the friend's ID to the array if it doesn't already exist
+				{ new: true } // Return the updated document
+			);
+	
+			return updatedUser;
+		} catch (error) {
+			throw new Error(`Failed to add friend: ${error.message}`);
+		}
+	}
+
+	async getUserRole(username) {
+		try {
+			// Find the user by username and populate the 'role' field
+			const user = await User.findOne({ username }).populate('role_id');
+			return user.role_id.name;
+		} catch (error) {
+			throw new Error(`Failed to get user role: ${error.message}`);
+		}
 	}
 	
+	async deleteUser(username) {
+		try {
+			// Find and delete the user by username
+			const deletedUser = await User.findOneAndDelete({ username });
+			return deletedUser;
+		} catch (error) {
+			throw new Error(`Failed to delete user: ${error.message}`);
+		}
+	}
+
+	/**
+	 * Create a notification for a specific user.
+	 * @param {string} username - The username of the user to whom the notification belongs.
+	 * @param {string} title - The title of the notification.
+	 * @param {string} content - The content of the notification.
+	 * @returns {Promise<Object>} - A Promise that resolves to the created notification object.
+	 * @throws {Error} If creating notification fails.
+	 */
+	async createNotification(username, title, content, from_id) {
+		try {
+			// Find the user by username to get their ObjectId
+			const user = await User.findOne({ username });
+			if (!user) {
+				throw new Error("User not found");
+			}
+
+			// Create a new notification document
+			const notification = new Notification({
+				user: user._id,
+				title: title,
+				content: content,
+				from_id,
+				created_at: new Date() // Assuming current date and time
+			});
+
+			// Save the notification document to the database
+			const newNotification = await notification.save();
+
+			return newNotification;
+		} catch (error) {
+			throw new Error(`Failed to create notification: ${error.message}`);
+		}
+	};
+
+	async getNotificationsByUsername(username)  {
+		try {
+			// Find the user by username to get their ObjectId
+			const user = await User.findOne({ username });
+			if (!user) {
+				throw new Error("User not found");
+			}
+	
+			// Find notifications for the user
+			const notifications = await Notification.find({ user: user._id });
+	
+			return notifications;
+		} catch (error) {
+			throw new Error(`Failed to get notifications: ${error.message}`);
+		}
+	};
+
+	async getArticles() {
+        try {
+            // Find posts where is_article is true
+            const articles = await Post.find({ is_article: true });
+            return articles;
+        } catch (error) {
+            throw new Error(`Failed to get articles: ${error.message}`);
+        }
+    }
+
+
 };
 module.exports = userInfo

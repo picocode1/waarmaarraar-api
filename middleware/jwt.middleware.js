@@ -3,9 +3,10 @@ const jwt = require('jsonwebtoken');
 module.exports = (req, res, next) => {
     try {
         const token = req.cookies[process.env.JWT_NAME];
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-		console.log(decoded);
+		console.log("Decoded JWT:", decoded);
 
 		req.userData = decoded;
 
@@ -18,9 +19,13 @@ module.exports = (req, res, next) => {
 		} else next();
     
     } catch (error) {
-		console.log(error);
+		if (error.message == 'jwt must be provided') {
+			console.log('Missing JWT token.')
+		} else console.error(error);
+		
+		
         // res.redirect('/');
 		res.clearCookie(process.env.JWT_NAME)
-        res.status(500).json({ message: error.message });
+        res.status(401).json({ message: error.message, success: false  });
     }
 }

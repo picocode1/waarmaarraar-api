@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
 		required: true,
 		auto: true,
 	},
+	username: String,
     user_id: mongoose.Schema.Types.ObjectId,
     category: String,
     title: String,
@@ -13,6 +14,7 @@ const userSchema = new mongoose.Schema({
     created_at: Date,
     meta_tags: [String],
 	is_article: Boolean,
+	image: String,
 }, { versionKey: false });
 
 
