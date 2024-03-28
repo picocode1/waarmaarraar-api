@@ -2,7 +2,12 @@ const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
     try {
-        const token = req.cookies[process.env.JWT_NAME];
+		const authHeader = req.headers['authorization'];
+		const token = authHeader.split('Bearer ')[1]; // Extract the token from the Authorization header
+
+		if (!token) {
+		  return res.status(401).json({ message: 'No token provided' });
+		}
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -14,7 +19,7 @@ module.exports = (req, res, next) => {
 
 
 		if (Math.floor(+new Date() / 1000) > decoded.exp) {
-			res.clearCookie(process.env.JWT_NAME)
+			// res.clearCookie(process.env.JWT_NAME)
 			res.redirect('/')
 		} else next();
     
@@ -25,7 +30,7 @@ module.exports = (req, res, next) => {
 		
 	
         // res.redirect('/');
-		res.clearCookie(process.env.JWT_NAME)
+		// res.clearCookie(process.env.JWT_NAME)
         res.status(401).json({ message: error.message, success: false  });
     }
 }

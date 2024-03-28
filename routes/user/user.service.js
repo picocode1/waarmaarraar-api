@@ -35,7 +35,7 @@ const loginUser = async (req, res, next) => {
         req.token = token;
 		
 		// Set the cookie en send json token back
-		res.cookie('JWT_TOKEN', token, { httpOnly: true });
+		// res.cookie('JWT_TOKEN', token, { httpOnly: true });
 		res.status(200).json({ message: "You have been logged in successfully", jwt: token, success: true });
 
     } catch (error) {
@@ -128,7 +128,7 @@ const registerUser = async (req, res, next) => {
 
 // need to update
 const logoutUser = async (req, res, next) => {
-	res.clearCookie(process.env.JWT_NAME)
+	// res.clearCookie(process.env.JWT_NAME)
 }
 
 

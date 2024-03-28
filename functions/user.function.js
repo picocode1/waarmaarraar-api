@@ -7,6 +7,7 @@ const Post = require('../routes/forum/models/post.model')
 
 const user = user => { return { username: user }}
 
+
 class userInfo {
 
 	/**
@@ -144,6 +145,17 @@ class userInfo {
 		}
 	}
 
+
+	/**
+	 * Get the role of a user by username.
+	 * @param {string} username - The username of the user.
+	 * @returns {string} - The role name of the user.
+	 * @throws {Error} If user not found or if getting user role fails.
+	 * @example
+	 * const role = await getUserRole("username");
+	 * console.log(role); // "User"
+	 * @returns {Promise<string>} - The role name of the user.
+	 */
 	async getUserRole(username) {
 		try {
 			// Find the user by username and populate the 'role' field
@@ -154,6 +166,17 @@ class userInfo {
 		}
 	}
 	
+	/**
+	 * Delete a user by username.
+	 * @param {string} username - The username of the user to delete.
+	 * @returns {Object} - The deleted user object.
+	 * @throws {Error} If user not found or if deleting user fails.
+	 * @example
+	 * const deletedUser = await deleteUser("username");
+	 * console.log(deletedUser); // { _id: ..., username: ..., ... }
+	 * @returns {Promise<Object>} - The deleted user object.
+	 * @throws {Error} - If user not found or if deleting user fails.
+	 */
 	async deleteUser(username) {
 		try {
 			// Find and delete the user by username
@@ -198,6 +221,17 @@ class userInfo {
 		}
 	};
 
+	/**
+	 * Get notifications for a specific user by username.
+	 * @param {string} username - The username of the user.
+	 * @returns {Promise<Array>} - A Promise that resolves to an array of notification objects.
+	 * @throws {Error} If getting notifications fails.
+	 * @example
+	 * const notifications = await getNotificationsByUsername("username");
+	 * console.log(notifications); // [ { _id: ..., user: ..., title: ..., ... }, ... ]
+	 * @returns {Promise<Array>} - An array of notification objects.
+	 * @throws {Error} - If getting notifications fails.
+	 */
 	async getNotificationsByUsername(username)  {
 		try {
 			// Find the user by username to get their ObjectId
@@ -215,6 +249,12 @@ class userInfo {
 		}
 	};
 
+
+	/**
+	 * Get all articles.
+	 * @returns {Promise<Array>} - An array of article objects.
+	 * @throws {Error} - If getting articles fails.
+	 */
 	async getArticles() {
         try {
             // Find posts where is_article is true

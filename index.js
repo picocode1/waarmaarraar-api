@@ -125,6 +125,7 @@ function print(path, layer) {
 }
 
 function split(thing) {
+		
 	if (typeof thing === 'string') {
 		return thing.split('/')
 	} else {

@@ -24,4 +24,6 @@ router.get('/getNotifications', jwtCheck, (req, res) => userService.getNotificat
 
 router.post('/sendMessage/:username', jwtCheck, (req, res) => userService.sendMessage(req, res));
 
+
+
 module.exports = router;
