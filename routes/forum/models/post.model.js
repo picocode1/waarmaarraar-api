@@ -7,7 +7,11 @@ const userSchema = new mongoose.Schema({
 		auto: true,
 	},
 	username: String,
-    user_id: mongoose.Schema.Types.ObjectId,
+    user: { // Change from user_id to user
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // Refers to the User model
+        required: true
+    },
     category: String,
     title: String,
     content: String,

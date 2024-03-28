@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
 		required: true,
 		auto: true,
 	},
-    user_id: mongoose.Schema.Types.ObjectId,
+    user: mongoose.Schema.Types.ObjectId,
     post_id: mongoose.Schema.Types.ObjectId,
     reaction_id: Number,
     created_at: Date,

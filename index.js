@@ -7,6 +7,7 @@ const app = express();
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
+const https = require('https');
 
 const helper = new (require('./functions/helper.function.js'));
 const userInfo = new (require('./functions/user.function.js'));
@@ -88,6 +89,8 @@ app.use(require('./middleware/mobile.middleware')) // req.isMobile - use anywher
 // Middleware to set the CORS headers
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
+	// res.setHeader('Access-Control-Max-Age', 600); // remove later
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Accept');
     next();
 });
@@ -106,7 +109,20 @@ app.get("/", (req, res) => {
 })
 
 
-app.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
+// Add https to the server
+// I have in the certificates folder the key and cert files
+// called ssl_certificate.crt and ssl_private_key.key
+
+
+const options = {
+	key: fs.readFileSync('./certificates/ssl_private_key.key'),
+	cert: fs.readFileSync('./certificates/ssl_certificate.crt')
+};
+
+
+const server = https.createServer(options, app);
+
+server.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
 
 mongoose.connect(process.env.MONGO_URL);
 mongoose.connection.on('connected', () => console.log('Server is connected to the database.'));

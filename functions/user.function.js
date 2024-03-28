@@ -111,7 +111,10 @@ class userInfo {
 	 */
 	async getCommentsByPost(postId) {
 		try {
-			const comments = await Comments.find({ post_id: postId });
+			const comments = await Comments.find({ post_id: postId }).populate('user', 'username profile_picture'); // Select only 'username' and 'profile_picture' fields for user
+			console.log(comments);
+			console.log(comments.user);
+			
 			return comments;
 		} catch (error) {
 			throw new Error(`Failed to get comments by post: ${error.message}`);
@@ -258,7 +261,8 @@ class userInfo {
 	async getArticles() {
         try {
             // Find posts where is_article is true
-            const articles = await Post.find({ is_article: true });
+            const articles = await Post.find({ is_article: true }).populate('user', 'username profile_picture _id role name')
+			console.log(articles);
             return articles;
         } catch (error) {
             throw new Error(`Failed to get articles: ${error.message}`);

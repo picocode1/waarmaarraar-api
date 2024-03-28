@@ -34,7 +34,7 @@ const createPost = async (req, res) => {
         // Generate new ObjectId for the post
         const newPost = new Post({
             _id: new mongoose.Types.ObjectId(),
-			user_id: userData._id,
+			user: userData._id,
 			
 			username: UD.username,
 			title,
@@ -85,7 +85,7 @@ const addComment = async (req, res) => {
         // Generate new ObjectId for the post
         const newComment = new Comment({
             _id: new mongoose.Types.ObjectId(),
-			user_id: userData._id,
+			user: userData._id,
 			
 			content,
 			post_id,
@@ -148,7 +148,7 @@ const createArticle = async (req, res) => {
         // Generate new ObjectId for the post
         const newArticle = new Post({
             _id: new mongoose.Types.ObjectId(),
-			user_id: userData._id,
+			user: userData._id,
 			
 			username: UD.username,
 			title,
@@ -199,7 +199,7 @@ const addReaction = async (req, res) => {
         // Generate new ObjectId for the post
         const newReaction = new Reaction({
             _id: new mongoose.Types.ObjectId(),
-			user_id: userData._id,
+			user: userData._id,
 			
 			reaction,
 			post_id,
@@ -248,7 +248,7 @@ const getCommentsByUser = async (req, res) => {
 
 const getArticles = async (req, res) => {
     try {
-        const articles = await userInfo.getArticles();
+        const articles = await userInfo.getArticles()
         res.status(200).json(articles);
     } catch (error) {
         res.status(500).json({ error: `Failed to get articles: ${error.message}` });
