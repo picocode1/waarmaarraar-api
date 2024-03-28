@@ -10,16 +10,24 @@ const user = user => { return { username: user }}
 
 class userInfo {
 
-	/**
-	 * Get user information by username.
-	 * @param {string} username - The username of the user.
-	 * @returns {Object} userData - The user data object.
-	 * @throws {Error} If user information retrieval fails.
-	 */
-	async getInfo(username) {
+	/* 
+	* Get user info by username.
+	* @param {string} username - The username of the user.
+	* @param {string} authedUser - The username of the authenticated user.
+	* @returns {Object} - The user object.
+	* @throws {Error} - If getting user info fails.
+	*/
+	async getInfo(username, authedUser) {
 		try {
 			console.log({ "getInfo": username });
-			const userData = await User.findOne(user(username));
+			const userData = await User.findOne(user(username)).select('-password -_id'); // Exclude 'password' and '_id' fields from the query result
+			// -notifications
+
+			// authedUser is the user who is currently logged in and user is the user whose profile is being viewed
+			// If the user is private and the user is not the same as the authenticated user, return only the username
+			if (userData.private && authedUser !== username) {
+				return { username: userData.username, profile_picture: userData.profile_picture }
+			}
 
 			return userData;
 		} catch (error) {
@@ -112,8 +120,7 @@ class userInfo {
 	async getCommentsByPost(postId) {
 		try {
 			const comments = await Comments.find({ post_id: postId }).populate('user', 'username profile_picture'); // Select only 'username' and 'profile_picture' fields for user
-			console.log(comments);
-			console.log(comments.user);
+
 			
 			return comments;
 		} catch (error) {
@@ -268,6 +275,8 @@ class userInfo {
             throw new Error(`Failed to get articles: ${error.message}`);
         }
     }
+
+
 
 
 };

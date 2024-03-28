@@ -191,9 +191,9 @@ const getNotifications = async (req, res, next) => {
 const getUser = async (req, res, next) => {
 	try {
 		let username = req.params.username
-		
+		const authedUser = req.userData.username;
 	
-		userInfo.getInfo(username).then(data => {
+		userInfo.getInfo(username, authedUser).then(data => {
 	
 			// need to stringify to fix for model
 			//_id: new ObjectId('65fa9784b2faffeafca95f20'),
@@ -201,8 +201,7 @@ const getUser = async (req, res, next) => {
 	
 	
 			let json = JSON.parse(JSON.stringify(data))
-			delete json.password;
-			delete json._id;
+
 	
 			return res.status(200).json(json);
 		})

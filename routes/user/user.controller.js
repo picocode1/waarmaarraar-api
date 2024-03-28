@@ -23,6 +23,8 @@ router.get('/getUser/:username', jwtCheck, (req, res) => userService.getUser(req
 router.get('/getNotifications', jwtCheck, (req, res) => userService.getNotifications(req, res));
 
 router.post('/sendMessage/:username', jwtCheck, (req, res) => userService.sendMessage(req, res));
+router.get('/getMessages/:username', jwtCheck, (req, res) => userService.getMessages(req, res));
+
 
 
 
