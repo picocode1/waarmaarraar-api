@@ -12,6 +12,8 @@ const userInfo = new (require('../../functions/user.function.js'));
 
 const Message = require('../../models/message.model.js');
 
+const Connection = require('../../models/connections.model.js')
+
 
 const createPost = async (req, res) => {
     try {
@@ -287,7 +289,7 @@ const getConversation = async (req, res) => {
                 return res.status(400).json({ message: "Amount must be between 0 and 100", success: false });
             }
         } else {
-            amount = null; // Set amount to null if not provided or not a number
+            amount = 10000; // Set amount to 10000 if not provided or not a number
         }
 
         var id = new mongoose.Types.ObjectId(userId2);
@@ -295,7 +297,7 @@ const getConversation = async (req, res) => {
         const user = await User.findById(id);
         if (!user) {
             return res.status(404).json({ message: "User not found", success: false });
-        }
+        }w
 
         let query = {
             $or: [
@@ -304,18 +306,22 @@ const getConversation = async (req, res) => {
             ]
         };
 
-        let messagesQuery = Message.find(query).sort({ timestamp: 1 }).populate({
-            path: 'sender', // Populate the sender
-            select: 'username', // Select the username field
-        }).populate({
-            path: 'receiver', // Populate the receiver
-            select: 'username', // Select the username field
-        });
+		let messagesQuery = Message.find(query)
+		.sort({ timestamp: -1 }) // Sort in descending order to get the latest messages first
+		.limit(amount) // Replace X with the desired number of messages
+		.populate({
+			path: 'sender', // Populate the sender
+			select: 'username', // Select the username field
+		})
+		.populate({
+			path: 'receiver', // Populate the receiver
+			select: 'username', // Select the username field
+		});
 
         // Limit the number of messages if amount parameter is provided
-        if (amount !== null) {
-            messagesQuery = (await messagesQuery).reverse().slice(0, amount).reverse();
-        }
+        //if (amount !== null) {
+        //    messagesQuery = (await messagesQuery).reverse().slice(0, amount).reverse();
+        //}
 
         const messages = await messagesQuery;
 
@@ -358,6 +364,40 @@ const getChatContacts = async (req, res) => {
 };
 
 
+const addFollower = async (req, res) => {
+    try {
+        const { username } = req.params; // Extract username of the user to follow
+        const followerUsername = req.userData.username; // Extract username of the follower from authenticated user data
+
+        // Call addFollower method from userInfo to add follower
+        const result = await userInfo.addFollower(username, followerUsername);
+        
+        // Check if the result contains a success message
+        if (result.success) {
+            return res.status(200).json({ message: result.message, success: true });
+        } else {
+            return res.status(400).json({ message: result.message, success: false });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: error.message, success: false });
+    }
+};
+
+
+const addFollowing = async (req, res) => {
+    try {
+        const { username } = req.params; // Extract username of the user to follow
+        const followingUsername = req.userData.username; // Extract username of the follower from authenticated user data
+
+        // Call addFollowing method from userInfo to add following user
+        const updatedUser = await userInfo.addFollowing(username, followingUsername);
+		
+        
+        return res.status(200).json({ message: `You are now following ${username}`, success: true });
+    } catch (error) {
+        return res.status(500).json({ message: error.message, success: false });
+    }
+};
 
 module.exports = { 
 	createPost,
@@ -369,5 +409,7 @@ module.exports = {
 	getArticles,
 	sendMessage,
     getConversation,
-	getChatContacts
+	getChatContacts,
+	addFollower,
+    addFollowing
 }

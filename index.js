@@ -16,7 +16,7 @@ const Role = require('./models/roles.model.js');
 
 const winston = require('winston');
 const { createLogger, format, transports } = winston;
-const { combine, timestamp, label, printf } = format;
+const { combine, label, printf } = format;
 const DailyRotateFile = require('winston-daily-rotate-file');
 
 
@@ -127,7 +127,11 @@ const logger = createLogger({
 
 // Middleware to set the CORS headers
 app.use((req, res, next) => {
-    let loggerText = `${req.method} ${req.url}`;
+
+	// URL Decoding for logging
+	const URL = decodeURIComponent(req.originalUrl);
+
+    let loggerText = `${req.method} ${URL}`;
 
     if (req.method === 'POST' && req.body) {
         loggerText += `\n\t\t        Request Body: ${JSON.stringify(req.body)}`;

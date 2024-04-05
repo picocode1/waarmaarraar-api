@@ -1,8 +1,12 @@
+const mongoose = require('mongoose');
+
 const User = require('../routes/user/user.model');
 const Comments = require('../routes/forum/models/comment.model')
 const Role = require('../models/roles.model')
 const Notification = require('../models/notification.model')
 const Post = require('../routes/forum/models/post.model')
+const Connection = require('../models/connections.model')
+
 
 
 const user = user => { return { username: user }}
@@ -292,60 +296,87 @@ class userInfo {
         }
     }
 
-	async addFollower(username, follower) {
+	/**
+	 * Add a follower to the user's followers list.
+	 * @param {string} username - The username of the user.
+	 * @param {string} followerUsername - The username of the follower to add.
+	 * @returns {Object} - The updated user object.
+	 * @throws {Error} - If user or follower not found, or if adding follower fails.
+	 * @example
+	 * const updatedUser = await addFollower("username", "followerUsername");
+	 * console.log(updatedUser); // { _id: ..., username: ..., ... }
+	 * @returns {Promise<Object>} - The updated user object.
+	 * @throws {Error} - If user or follower not found, or if adding follower fails.
+	 */
+	async addFollower(username, followerUsername) {
 		try {
 			// Find the user by username to get their ID
 			const user = await User.findOne({ username });
 			if (!user) {
 				throw new Error("User not found");
 			}
-
+	
 			// Find the follower by username to get their ID
-			const followerUser = await User.findOne({ username: follower });
-
+			const followerUser = await User.findOne({ username: followerUsername });
 			if (!followerUser) {
 				throw new Error("Follower not found");
 			}
+	
+			// Find or create the connection document for the user
+			let connection = await Connection.findOne({ user: user._id });
+			if (!connection) {
+				connection = new Connection({ user: user._id });
+			}
 
-			// Update the user document to add the follower's ID to the followers array if it doesn't already exist
-			const updated = await User.findOneAndUpdate({ username: username, "followers": { $nin: [followerUser._id] } }, { $addToSet: { followers: followerUser._id } }, { new: true });
-
-			return updated;
-		}
-
-		catch (error) {
-			throw new Error(`Failed to add follower: ${error.message}`);
-		}
-	}
-
-
-
-	async addFollowing(username, followingUsername) {
-		try {
-			// Find the user by username to get their ID
-			const user = await User.findOne({ username });
-			if (!user) {
-				throw new Error("User not found");
+			// Check if the follower's ID is already in the followers array
+			if (connection.followers.includes(followerUser._id)) {
+				return { message: `You are already following ${username}`, success: true }; // Return success message
 			}
 	
-			// Find the user to be followed by username to get their ID
-			const followingUser = await User.findOne({ username: followingUsername });
-			if (!followingUser) {
-				throw new Error("Following user not found");
-			}
+			
+
+			// Update the connection document to add the follower's ID to the followers array
+			connection.followers.push(followerUser._id);
+			await connection.save(); // Save the updated connection document
 	
-			// Update the user document to add the following user's ID to the following array if it doesn't already exist
-			const updatedUser = await User.findOneAndUpdate(
-				{ username: username, "following": { $nin: [followingUser._id] } },
-				{ $addToSet: { following: followingUser._id } },
-				{ new: true }
-			);
-	
-			return updatedUser;
+			return { message: `You are now following ${followerUsername}`, success: true };
 		} catch (error) {
-			throw new Error(`Failed to add following user: ${error.message}`);
+			return { message: `Failed to add follower: ${error.message}`, success: false };
 		}
 	}
+	
+	
+	
+	
+
+    async addFollowing(username, followingUsername) {
+        try {
+            // Find the user by username to get their ID
+            const user = await User.findOne({ username });
+            if (!user) {
+                throw new Error("User not found");
+            }
+
+            // Find the user to be followed by username to get their ID
+            const followingUser = await User.findOne({ username: followingUsername });
+            if (!followingUser) {
+                throw new Error("Following user not found");
+            }
+
+
+
+            // Update the user document to add the following user's ID to the following array if it doesn't already exist
+            const updatedUser = await User.findOneAndUpdate(
+                { username: username, "following": { $nin: [followingUser._id] } },
+                { $addToSet: { following: followingUser._id } },
+                { new: true }
+            );
+
+            return updatedUser;
+        } catch (error) {
+            throw new Error(`Failed to add following user: ${error.message}`);
+        }
+    }
 	
 };
 module.exports = userInfo
