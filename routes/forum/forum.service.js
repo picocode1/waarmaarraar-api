@@ -261,6 +261,7 @@ const sendMessage = async (req, res) => {
     try {
         const sender = req.userData._id; // Extract sender ID from authenticated user data
         const { receiver, message } = req.body;
+		console.log(req.body);
 
         // Check if sender and receiver are the same
         if (sender === receiver) {
@@ -269,6 +270,10 @@ const sendMessage = async (req, res) => {
 
         const newMessage = new Message({ sender, receiver, message });
         await newMessage.save();
+
+		// Send a notification to the receiver
+		userInfo.sendNotification(receiver, 'New message', 'You have received a new message', sender);
+
         res.status(201).json({ message: 'Message sent successfully', success: true });
     } catch (error) {
         res.status(500).json({ message: error.message, success: false});

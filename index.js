@@ -23,10 +23,14 @@ const DailyRotateFile = require('winston-daily-rotate-file');
 global.roles = {};
 // Global object to store role IDs by role name
 
-
 // userInfo.updateUserRank("rik", "Administrator")
 // userInfo.incrementField("rik", "comments_count", 1)
 // userInfo.getInfo("rik")
+
+// userInfo.areFriends("65fab62d10ca366b23aa9a0d", "65fab62d10ca366b23aa9a0d").then(data => {
+// 	console.log(data);
+// })
+
 
 // Function to populate the global roles object with role IDs
 async function populateRolesObject() {

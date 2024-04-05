@@ -7,7 +7,6 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 
-
 const loginUser = async (req, res, next) => {
 
 	const { username, password } = req.body;
@@ -174,11 +173,11 @@ const sendMessage = async (req, res, next) => {
 
 const getNotifications = async (req, res, next) => {
     try {
-        const currentUserUsername = req.userData.username;
+        const id = req.userData._id;
 
         // Continue with retrieving notifications for the current user
         // Example logic to retrieve notifications...
-        const notifications = await userInfo.getNotificationsByUsername(currentUserUsername);
+        const notifications = await userInfo.getNotifications(id);
 
         // Return the notifications
         res.status(200).json({ data: notifications, success: true });

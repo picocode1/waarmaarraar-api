@@ -14,25 +14,40 @@ const user = user => { return { username: user }}
 
 class userInfo {
 
-	/* 
-	* Get user info by username.
-	* @param {string} username - The username of the user.
-	* @param {string} authedUser - The username of the authenticated user.
-	* @returns {Object} - The user object.
-	* @throws {Error} - If getting user info fails.
-	*/
+	/**
+	 * Get user info by username.
+	 * @param {string} username - The username of the user.
+	 * @param {string} authedUser - The username of the authenticated user.
+	 * @returns {Object} - The user object.
+	 * @throws {Error} - If getting user info fails.
+	 */
 	async getInfo(username, authedUser) {
 		try {
 			console.log({ "getInfo": username });
-			const userData = await User.findOne(user(username)).select('-password -_id').populate('role'); // Exclude 'password' and '_id' fields from the query result
-			// -notifications
+			const userData = await User.findOne({ username })
+				.select('-password')
+				.populate({
+					path: 'role',
+					select: 'name displayName color'
+				});
 
 			if (!userData) {
 				return { message: "User not found", success: false };
 			}
 
-			// authedUser is the user who is currently logged in and user is the user whose profile is being viewed
-			// If the user is private and the user is not the same as the authenticated user, return only the username
+			const connectionData = await Connection.findOne({ user: userData._id })
+				.populate({
+					path: 'followers',
+					select: 'username _id'
+				})
+				.populate({
+					path: 'following',
+					select: 'username _id'
+				});
+
+			userData.followers = connectionData.followers;
+			userData.following = connectionData.following;
+
 			if (userData.private && authedUser !== username) {
 				return { username: userData.username, profile_picture: userData.profile_picture }
 			}
@@ -60,10 +75,15 @@ class userInfo {
 			}
 
 			// Find the user document by username
-			const user = await User.findOne({ username });
+			const user = await User.findOne({ username }).populate('role')
+
+			if (user.role.name != "Administrator") {
+				return "User is not an administrator"
+			}
+
 
 			if (!user) {
-				throw new Error("User not found");
+				return "User not found"
 			}
 
 			// Update the user's role with the role ID
@@ -207,16 +227,17 @@ class userInfo {
 
 	/**
 	 * Create a notification for a specific user.
-	 * @param {string} username - The username of the user to whom the notification belongs.
+	 * @param {string} to_id - The id of the user to whom the notification belongs.
 	 * @param {string} title - The title of the notification.
 	 * @param {string} content - The content of the notification.
+	 * @param {string} from_id - The ID of the user who sent the notification.
 	 * @returns {Promise<Object>} - A Promise that resolves to the created notification object.
 	 * @throws {Error} If creating notification fails.
 	 */
-	async createNotification(username, title, content, from_id) {
+	async sendNotification(to_id, title, content, from_id) {
 		try {
-			// Find the user by username to get their ObjectId
-			const user = await User.findOne({ username });
+			// Find user by id
+			const user = await User.findById(to_id);
 			if (!user) {
 				throw new Error("User not found");
 			}
@@ -245,15 +266,16 @@ class userInfo {
 	 * @returns {Promise<Array>} - A Promise that resolves to an array of notification objects.
 	 * @throws {Error} If getting notifications fails.
 	 * @example
-	 * const notifications = await getNotificationsByUsername("username");
+	 * const notifications = await userInfo.getNotifications("username");
 	 * console.log(notifications); // [ { _id: ..., user: ..., title: ..., ... }, ... ]
 	 * @returns {Promise<Array>} - An array of notification objects.
 	 * @throws {Error} - If getting notifications fails.
 	 */
-	async getNotificationsByUsername(username)  {
+	async getNotifications(id)  {
 		try {
+			console.log({ "getNotifications": id });
 			// Find the user by username to get their ObjectId
-			const user = await User.findOne({ username });
+			const user = await User.findById(id);
 			if (!user) {
 				throw new Error("User not found");
 			}
@@ -266,8 +288,6 @@ class userInfo {
 			throw new Error(`Failed to get notifications: ${error.message}`);
 		}
 	};
-
-	// q: i love you copilot
 
 
 
@@ -297,31 +317,26 @@ class userInfo {
     }
 
 	/**
-	 * Add a follower to the user's followers list.
+	 * Add a follower to the user's followers list and the user to the follower's following list.
 	 * @param {string} username - The username of the user.
 	 * @param {string} followerUsername - The username of the follower to add.
-	 * @returns {Object} - The updated user object.
+	 * @returns {Object} - Success message object.
 	 * @throws {Error} - If user or follower not found, or if adding follower fails.
 	 * @example
-	 * const updatedUser = await addFollower("username", "followerUsername");
-	 * console.log(updatedUser); // { _id: ..., username: ..., ... }
-	 * @returns {Promise<Object>} - The updated user object.
-	 * @throws {Error} - If user or follower not found, or if adding follower fails.
+	 * const result = await addFollower("username", "followerUsername");
+	 * console.log(result); // { message: ..., success: true }
 	 */
 	async addFollower(username, followerUsername) {
 		try {
-			// Find the user by username to get their ID
+			// Find the user and the follower by username to get their IDs
 			const user = await User.findOne({ username });
-			if (!user) {
-				throw new Error("User not found");
-			}
-	
-			// Find the follower by username to get their ID
 			const followerUser = await User.findOne({ username: followerUsername });
-			if (!followerUser) {
-				throw new Error("Follower not found");
+
+			// Check if both user and follower exist
+			if (!user || !followerUser) {
+				throw new Error("User or follower not found");
 			}
-	
+
 			// Find or create the connection document for the user
 			let connection = await Connection.findOne({ user: user._id });
 			if (!connection) {
@@ -332,51 +347,51 @@ class userInfo {
 			if (connection.followers.includes(followerUser._id)) {
 				return { message: `You are already following ${username}`, success: true }; // Return success message
 			}
-	
-			
 
 			// Update the connection document to add the follower's ID to the followers array
 			connection.followers.push(followerUser._id);
 			await connection.save(); // Save the updated connection document
-	
-			return { message: `You are now following ${followerUsername}`, success: true };
+
+			// Update the follower's following list to add the user's ID
+			let followerConnection = await Connection.findOne({ user: followerUser._id });
+			if (!followerConnection) {
+				followerConnection = new Connection({ user: followerUser._id });
+			}
+			followerConnection.following.push(user._id);
+			await followerConnection.save();
+
+			return { message: `You are now following ${username}`, success: true };
 		} catch (error) {
 			return { message: `Failed to add follower: ${error.message}`, success: false };
 		}
 	}
+		
+//	async areFriends(userId1, userId2) {
+//		try {
+//			// Find both users by their IDs
+//			const user1 = await User.findById(userId1).populate('following');
+//			const user2 = await User.findById(userId2).populate('following');
+//	
+//			// Check if both users exist
+//			if (!user1 || !user2) {
+//				throw new Error("One or both users not found");
+//			}
+//	
+//			// Check if user1 follows user2 and vice versa
+//			const user1FollowsUser2 = user1.following.some(followedUser => followedUser._id.equals(userId2));
+//			const user2FollowsUser1 = user2.following.some(followedUser => followedUser._id.equals(userId1));
+//	
+//			console.log(user1FollowsUser2, user2FollowsUser1);
+//
+//
+//			// If both users follow each other, they are friends
+//			return user1FollowsUser2 && user2FollowsUser1;
+//		} catch (error) {
+//			throw new Error(`Failed to check friendship: ${error.message}`);
+//		}
+//	}
+		
 	
-	
-	
-	
-
-    async addFollowing(username, followingUsername) {
-        try {
-            // Find the user by username to get their ID
-            const user = await User.findOne({ username });
-            if (!user) {
-                throw new Error("User not found");
-            }
-
-            // Find the user to be followed by username to get their ID
-            const followingUser = await User.findOne({ username: followingUsername });
-            if (!followingUser) {
-                throw new Error("Following user not found");
-            }
-
-
-
-            // Update the user document to add the following user's ID to the following array if it doesn't already exist
-            const updatedUser = await User.findOneAndUpdate(
-                { username: username, "following": { $nin: [followingUser._id] } },
-                { $addToSet: { following: followingUser._id } },
-                { new: true }
-            );
-
-            return updatedUser;
-        } catch (error) {
-            throw new Error(`Failed to add following user: ${error.message}`);
-        }
-    }
 	
 };
 module.exports = userInfo
