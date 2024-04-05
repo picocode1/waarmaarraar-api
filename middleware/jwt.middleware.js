@@ -3,15 +3,21 @@ const jwt = require('jsonwebtoken');
 module.exports = (req, res, next) => {
     try {
 		const authHeader = req.headers['authorization'];
+		
+		if (!authHeader) {
+			return res.status(401).json({ message: 'Missing auth header', success: false });
+		}
+
 		const token = authHeader.split('Bearer ')[1]; // Extract the token from the Authorization header
 
 		if (!token) {
-		  return res.status(401).json({ message: 'No token provided' });
+		  return res.status(401).json({ message: 'No token provided', success: false });
 		}
+
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-		console.log("Decoded JWT:", decoded);
+		// console.log("Decoded JWT:", decoded);
 
 		req.userData = decoded;
 
@@ -19,7 +25,7 @@ module.exports = (req, res, next) => {
 
 
 		if (Math.floor(+new Date() / 1000) > decoded.exp) {
-			// res.clearCookie(process.env.JWT_NAME)
+			res.clearCookie(process.env.JWT_NAME)
 			res.redirect('/')
 		} else next();
     

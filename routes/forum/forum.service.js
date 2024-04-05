@@ -10,7 +10,7 @@ const Role = require('../../models/roles.model.js');
 
 const userInfo = new (require('../../functions/user.function.js'));
 
-
+const Message = require('../../models/message.model.js');
 
 
 const createPost = async (req, res) => {
@@ -23,11 +23,11 @@ const createPost = async (req, res) => {
         const { title, content, category, meta_tags, image } = req.body;
         
 		if (!content) {
-			res.status(400).json({ message: "Missing content" });
+			res.status(400).json({ message: "Missing content", success: false});
 			return;
 		}
 		if (!title) {
-			res.status(400).json({ message: "Missing title" });
+			res.status(400).json({ message: "Missing title", success: false});
 			return;
 		}
 
@@ -72,12 +72,12 @@ const addComment = async (req, res) => {
         const { content, post_id } = req.body;
         
 		if (!content) {
-			res.status(400).json({ message: "Missing content" });
+			res.status(400).json({ message: "Missing content", success: false});
 			return;
 		}
 
 		if (!post_id) {
-			res.status(400).json({ message: "Missing post id" });
+			res.status(400).json({ message: "Missing post id", success: false});
 			return;
 		}
 
@@ -103,7 +103,7 @@ const addComment = async (req, res) => {
 			success: true
 		});
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false  });
+        res.status(500).json({ message: error.message, success: false });
     }
 };
 
@@ -136,12 +136,12 @@ const createArticle = async (req, res) => {
         const { title, content, category, meta_tags, image } = req.body;
         
 		if (!content) {
-			res.status(400).json({ message: "Missing content" });
+			res.status(400).json({ message: "Missing content", success: false});
 			return;
 		}
 
 		if (!title) {
-			res.status(400).json({ message: "Missing title" });
+			res.status(400).json({ message: "Missing title", success: false});
 			return;
 		}
 
@@ -186,12 +186,12 @@ const addReaction = async (req, res) => {
         const { reaction, post_id } = req.body;
         
 		if (!reaction) {
-			res.status(400).json({ message: "Missing reaction" });
+			res.status(400).json({ message: "Missing reaction", success: false});
 			return;
 		}
 
 		if (!post_id) {
-			res.status(400).json({ message: "Missing post id" });
+			res.status(400).json({ message: "Missing post id", success: false});
 			return;
 		}
 
@@ -228,7 +228,7 @@ const getCommentsByPost = async (req, res) => {
 
         // Retrieve comments by post ID
         const comments = await userInfo.getCommentsByPost(postId);
-		res.status(200).json({ comments, success: true });
+		res.status(200).json({ data: comments, success: true });
     } catch (error) {
         res.status(500).json({ message: error.message, success: false  });
     }
@@ -240,7 +240,7 @@ const getCommentsByUser = async (req, res) => {
 		
         // Retrieve comments by user ID
         const comments = await userInfo.getCommentsByUser(userId);
-		res.status(200).json({ comments, success: true });
+		res.status(200).json({ data: comments, success: true });
     } catch (error) {
 		res.status(500).json({ message: error.message, success: false  });
     }
@@ -251,9 +251,113 @@ const getArticles = async (req, res) => {
         const articles = await userInfo.getArticles()
         res.status(200).json(articles);
     } catch (error) {
-        res.status(500).json({ error: `Failed to get articles: ${error.message}` });
+        res.status(500).json({ error: `Failed to get articles: ${error.message}`, success: false});
     }
 };
+
+const sendMessage = async (req, res) => {
+    try {
+        const sender = req.userData._id; // Extract sender ID from authenticated user data
+        const { receiver, message } = req.body;
+
+        // Check if sender and receiver are the same
+        if (sender === receiver) {
+            return res.status(400).json({ message: 'Cannot send message to yourself' });
+        }
+
+        const newMessage = new Message({ sender, receiver, message });
+        await newMessage.save();
+        res.status(201).json({ message: 'Message sent successfully', success: true });
+    } catch (error) {
+        res.status(500).json({ message: error.message, success: false});
+    }
+};
+
+const getConversation = async (req, res) => {
+    try {
+        const userId1 = req.userData._id;
+        const userId2 = req.params.userId; // Extract the user ID from the request parameters
+        let amount = req.params.amount; // Extract the amount of messages from the request parameters
+
+        // Check if amount parameter exists and is a valid number
+        if (amount !== undefined && !isNaN(amount)) {
+            amount = parseInt(amount);
+            // Check if amount is within the allowed range (0 to 100)
+            if (amount < 0 || amount > 100) {
+                return res.status(400).json({ message: "Amount must be between 0 and 100", success: false });
+            }
+        } else {
+            amount = null; // Set amount to null if not provided or not a number
+        }
+
+        var id = new mongoose.Types.ObjectId(userId2);
+        // Check if userid2 exists
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found", success: false });
+        }
+
+        let query = {
+            $or: [
+                { sender: userId1, receiver: userId2 },
+                { sender: userId2, receiver: userId1 }
+            ]
+        };
+
+        let messagesQuery = Message.find(query).sort({ timestamp: 1 }).populate({
+            path: 'sender', // Populate the sender
+            select: 'username', // Select the username field
+        }).populate({
+            path: 'receiver', // Populate the receiver
+            select: 'username', // Select the username field
+        });
+
+        // Limit the number of messages if amount parameter is provided
+        if (amount !== null) {
+            messagesQuery = (await messagesQuery).reverse().slice(0, amount).reverse();
+        }
+
+        const messages = await messagesQuery;
+
+        return res.status(200).json({ messages, success: true });
+    } catch (error) {
+        return res.status(500).json({ message: error.message, success: false });
+    }
+};
+
+
+
+const getChatContacts = async (req, res) => {
+    try {
+        const userId = req.userData._id;
+
+        // Find all unique sender and receiver IDs where the authenticated user is involved
+        const messages = await Message.find({
+            $or: [{ sender: userId }, { receiver: userId }]
+        });
+
+        const uniqueUserIds = new Set();
+        messages.forEach(message => {
+            if (message.sender.toString() !== userId.toString()) {
+                uniqueUserIds.add(message.sender);
+            }
+            if (message.receiver.toString() !== userId.toString()) {
+                uniqueUserIds.add(message.receiver);
+            }
+        });
+
+        // Fetch user details for the unique user IDs
+        const contacts = await User.find({ _id: { $in: Array.from(uniqueUserIds) } })
+            .populate('role', 'name displayName color')
+            .select('username profile_picture');
+
+        res.status(200).json({ data: contacts, success: true});
+    } catch (error) {
+        res.status(500).json({ message: error.message, success: false});
+    }
+};
+
+
 
 module.exports = { 
 	createPost,
@@ -262,5 +366,8 @@ module.exports = {
 	addReaction,
 	getCommentsByPost,
 	getCommentsByUser,
-	getArticles
+	getArticles,
+	sendMessage,
+    getConversation,
+	getChatContacts
 }

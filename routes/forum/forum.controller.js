@@ -20,4 +20,9 @@ router.get('/getCommentsByUser/:userId', jwtCheck ,(req, res) => forumService.ge
 
 router.get('/getArticles', jwtCheck ,(req, res) => forumService.getArticles(req, res));
 
+router.post('/send', jwtCheck, (req, res) => forumService.sendMessage(req, res));
+router.get('/conversation/:userId/:amount?', jwtCheck, (req, res) => forumService.getConversation(req, res));
+router.get('/chatContacts', jwtCheck, (req, res) => forumService.getChatContacts(req, res));
+ 
+
 module.exports = router;

@@ -168,7 +168,7 @@ const sendMessage = async (req, res, next) => {
         });
     } catch (error) {
         // Return error response
-        return res.status(500).json({ success: false, message: error.message });
+        return res.status(500).json({ message: error.message, success: false});
     }
 };
 
@@ -181,10 +181,10 @@ const getNotifications = async (req, res, next) => {
         const notifications = await userInfo.getNotificationsByUsername(currentUserUsername);
 
         // Return the notifications
-        res.status(200).json({ notifications });
+        res.status(200).json({ data: notifications, success: true });
     } catch (error) {
         // Handle any errors
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message, success: false});
     }
 };
 
@@ -192,18 +192,16 @@ const getUser = async (req, res, next) => {
 	try {
 		let username = req.params.username
 		const authedUser = req.userData.username;
-	
+		
 		userInfo.getInfo(username, authedUser).then(data => {
 	
 			// need to stringify to fix for model
 			//_id: new ObjectId('65fa9784b2faffeafca95f20'),
 			//SyntaxError: Expected property name or '}' in JSON at position 4 (line 2 column 3)
-	
-	
-			let json = JSON.parse(JSON.stringify(data))
 
-	
-			return res.status(200).json(json);
+			let json = JSON.parse(JSON.stringify(data))
+			res.status(200).json(json);
+			return;
 		})
 	} catch (error) {
 		// Return error response

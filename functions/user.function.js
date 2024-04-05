@@ -20,8 +20,12 @@ class userInfo {
 	async getInfo(username, authedUser) {
 		try {
 			console.log({ "getInfo": username });
-			const userData = await User.findOne(user(username)).select('-password -_id'); // Exclude 'password' and '_id' fields from the query result
+			const userData = await User.findOne(user(username)).select('-password -_id').populate('role'); // Exclude 'password' and '_id' fields from the query result
 			// -notifications
+
+			if (!userData) {
+				return { message: "User not found", success: false };
+			}
 
 			// authedUser is the user who is currently logged in and user is the user whose profile is being viewed
 			// If the user is private and the user is not the same as the authenticated user, return only the username
@@ -259,6 +263,10 @@ class userInfo {
 		}
 	};
 
+	// q: i love you copilot
+
+
+
 
 	/**
 	 * Get all articles.
@@ -268,7 +276,15 @@ class userInfo {
 	async getArticles() {
         try {
             // Find posts where is_article is true
-            const articles = await Post.find({ is_article: true }).populate('user', 'username profile_picture _id role name')
+			const articles = await Post.find({ is_article: true })
+			.populate({
+				path: 'user', // First, populate the user
+				select: 'username profile_picture _id role name', // Select fields you want
+				populate: { 
+					path: 'role', // Then, within each populated user, populate the role
+					select: 'name displayName color' // Select the name of the role, or more fields if needed
+				}
+			});
 			console.log(articles);
             return articles;
         } catch (error) {
@@ -276,8 +292,60 @@ class userInfo {
         }
     }
 
+	async addFollower(username, follower) {
+		try {
+			// Find the user by username to get their ID
+			const user = await User.findOne({ username });
+			if (!user) {
+				throw new Error("User not found");
+			}
+
+			// Find the follower by username to get their ID
+			const followerUser = await User.findOne({ username: follower });
+
+			if (!followerUser) {
+				throw new Error("Follower not found");
+			}
+
+			// Update the user document to add the follower's ID to the followers array if it doesn't already exist
+			const updated = await User.findOneAndUpdate({ username: username, "followers": { $nin: [followerUser._id] } }, { $addToSet: { followers: followerUser._id } }, { new: true });
+
+			return updated;
+		}
+
+		catch (error) {
+			throw new Error(`Failed to add follower: ${error.message}`);
+		}
+	}
 
 
 
+	async addFollowing(username, followingUsername) {
+		try {
+			// Find the user by username to get their ID
+			const user = await User.findOne({ username });
+			if (!user) {
+				throw new Error("User not found");
+			}
+	
+			// Find the user to be followed by username to get their ID
+			const followingUser = await User.findOne({ username: followingUsername });
+			if (!followingUser) {
+				throw new Error("Following user not found");
+			}
+	
+			// Update the user document to add the following user's ID to the following array if it doesn't already exist
+			const updatedUser = await User.findOneAndUpdate(
+				{ username: username, "following": { $nin: [followingUser._id] } },
+				{ $addToSet: { following: followingUser._id } },
+				{ new: true }
+			);
+	
+			return updatedUser;
+		} catch (error) {
+			throw new Error(`Failed to add following user: ${error.message}`);
+		}
+	}
+	
 };
 module.exports = userInfo

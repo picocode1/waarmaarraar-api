@@ -14,6 +14,12 @@ const userInfo = new (require('./functions/user.function.js'));
 
 const Role = require('./models/roles.model.js');
 
+const winston = require('winston');
+const { createLogger, format, transports } = winston;
+const { combine, timestamp, label, printf } = format;
+const DailyRotateFile = require('winston-daily-rotate-file');
+
+
 global.roles = {};
 // Global object to store role IDs by role name
 
@@ -82,14 +88,56 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(require('./middleware/sanitize.middleware'))
-app.use(require('./middleware/logger.middleware'))
+// app.use(require('./middleware/logger.middleware'))
 app.use(require('./middleware/mobile.middleware')) // req.isMobile - use anywhere to check if user is using a phone
+
+
+// Define log format
+const logFormat = printf(({ level, message, label }) => {
+    const now = new Date();
+	const formattedDate = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} - ${now.getDate().toString().padStart(2, '0')}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getFullYear()}`;
+
+    return `[${formattedDate}] ${message}`;
+});
+
+// Create Winston logger
+const logger = createLogger({
+    format: combine(
+        label({ label: 'WMR' }),
+        logFormat
+    ),
+    transports: [
+        // Console transport
+        new transports.Console({
+            format: combine(
+                format.colorize(),
+                logFormat
+            )
+        }),
+        // DailyRotateFile transport
+        new DailyRotateFile({
+            filename: 'logs/%DATE%.log',
+            datePattern: 'DD-MM-YYYY',
+            maxSize: '20m',
+            maxFiles: '31d'
+        })
+    ]
+});
 
 
 // Middleware to set the CORS headers
 app.use((req, res, next) => {
+    let loggerText = `${req.method} ${req.url}`;
+
+    if (req.method === 'POST' && req.body) {
+        loggerText += `\n\t\t        Request Body: ${JSON.stringify(req.body)}`;
+    }
+
+    logger.info(loggerText);
+    
+
     res.setHeader('Access-Control-Allow-Origin', '*');
-	// res.setHeader('Access-Control-Max-Age', 600); // remove later
+	res.setHeader('Access-Control-Max-Age', 600); // remove later
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Accept');
     next();
