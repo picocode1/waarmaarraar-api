@@ -9,8 +9,9 @@ const Connection = require('../models/connections.model')
 
 
 
-const user = user => { return { username: user }}
+const getUser = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
 
+console.log(getUser("rik"));
 
 class userInfo {
 
@@ -24,7 +25,7 @@ class userInfo {
 	async getInfo(username, authedUser) {
 		try {
 			console.log({ "getInfo": username });
-			const userData = await User.findOne({ username })
+			const userData = await User.findOne(getUser(username))
 				.select('-password')
 				.populate({
 					path: 'role',
@@ -75,7 +76,7 @@ class userInfo {
 			}
 
 			// Find the user document by username
-			const user = await User.findOne({ username }).populate('role')
+			const user = await User.findOne(getUser(username)).populate('role')
 
 			if (user.role.name != "Administrator") {
 				return "User is not an administrator"
@@ -165,7 +166,7 @@ class userInfo {
 	async addFriend(username) {
 		try {
 			// Step 1: Find the user by username to get their ID
-			const user = await User.findOne({ username: username });
+			const user = await User.findOne(getUser(username));
 			if (!user) {
 				throw new Error("User not found");
 			}
@@ -197,8 +198,8 @@ class userInfo {
 	async getUserRole(username) {
 		try {
 			// Find the user by username and populate the 'role' field
-			const user = await User.findOne({ username }).populate('role_id');
-			return user.role_id.name;
+			const user = await User.findOne(getUser(username)).populate('role');
+			return user.role.name;
 		} catch (error) {
 			throw new Error(`Failed to get user role: ${error.message}`);
 		}
@@ -329,7 +330,7 @@ class userInfo {
 	async addFollower(username, followerUsername) {
 		try {
 			// Find the user and the follower by username to get their IDs
-			const user = await User.findOne({ username });
+			const user = await User.findOne(getUser(username));
 			const followerUser = await User.findOne({ username: followerUsername });
 
 			// Check if both user and follower exist

@@ -31,6 +31,10 @@ global.roles = {};
 // 	console.log(data);
 // })
 
+// userInfo.getUserRole("rik").then(data => {
+// 	console.log(data);
+// })
+
 
 // Function to populate the global roles object with role IDs
 async function populateRolesObject() {
