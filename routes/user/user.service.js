@@ -7,13 +7,16 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 
+const getUsername = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
+
+
 const loginUser = async (req, res, next) => {
 
 	const { username, password } = req.body;
     try {
 
         // Find the user by username
-        const user = await User.findOne({ username });
+        const user = await User.findOne(getUsername(username));
         if (!user) {
 			console.log(user);
             return res.status(404).json({ message: 'User not found', success: false });
@@ -54,7 +57,7 @@ const registerUser = async (req, res, next) => {
 		});
     }
 
-	const usernameExists = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
+	const usernameExists = await User.findOne(getUsername(username));
 
 	if (usernameExists) {
 		return res.status(200).json({

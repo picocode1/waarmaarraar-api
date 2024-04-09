@@ -272,7 +272,7 @@ const sendMessage = async (req, res) => {
         await newMessage.save();
 
 		// Send a notification to the receiver
-		userInfo.sendNotification(receiver, 'New message', 'You have received a new message', sender);
+		userInfo.sendNotification(receiver, `New message from ${sender}`, 'You have received a new message', sender);
 
         res.status(201).json({ message: 'Message sent successfully', success: true });
     } catch (error) {

@@ -9,9 +9,7 @@ const Connection = require('../models/connections.model')
 
 
 
-const getUser = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
-
-console.log(getUser("rik"));
+const getUsername = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
 
 class userInfo {
 
@@ -25,7 +23,7 @@ class userInfo {
 	async getInfo(username, authedUser) {
 		try {
 			console.log({ "getInfo": username });
-			const userData = await User.findOne(getUser(username))
+			const userData = await User.findOne(getUsername(username))
 				.select('-password')
 				.populate({
 					path: 'role',
@@ -76,7 +74,7 @@ class userInfo {
 			}
 
 			// Find the user document by username
-			const user = await User.findOne(getUser(username)).populate('role')
+			const user = await User.findOne(getUsername(username)).populate('role')
 
 			if (user.role.name != "Administrator") {
 				return "User is not an administrator"
@@ -166,7 +164,7 @@ class userInfo {
 	async addFriend(username) {
 		try {
 			// Step 1: Find the user by username to get their ID
-			const user = await User.findOne(getUser(username));
+			const user = await User.findOne(getUsername(username));
 			if (!user) {
 				throw new Error("User not found");
 			}
@@ -191,14 +189,14 @@ class userInfo {
 	 * @returns {string} - The role name of the user.
 	 * @throws {Error} If user not found or if getting user role fails.
 	 * @example
-	 * const role = await getUserRole("username");
+	 * const role = await getUsernameRole("username");
 	 * console.log(role); // "User"
 	 * @returns {Promise<string>} - The role name of the user.
 	 */
-	async getUserRole(username) {
+	async getUsernameRole(username) {
 		try {
 			// Find the user by username and populate the 'role' field
-			const user = await User.findOne(getUser(username)).populate('role');
+			const user = await User.findOne(getUsername(username)).populate('role');
 			return user.role.name;
 		} catch (error) {
 			throw new Error(`Failed to get user role: ${error.message}`);
@@ -330,7 +328,7 @@ class userInfo {
 	async addFollower(username, followerUsername) {
 		try {
 			// Find the user and the follower by username to get their IDs
-			const user = await User.findOne(getUser(username));
+			const user = await User.findOne(getUsername(username));
 			const followerUser = await User.findOne({ username: followerUsername });
 
 			// Check if both user and follower exist
