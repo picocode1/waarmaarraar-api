@@ -130,7 +130,7 @@ const registerUser = async (req, res, next) => {
 
 // need to update
 const logoutUser = async (req, res, next) => {
-	// res.clearCookie(process.env.JWT_NAME)
+	res.clearCookie(process.env.JWT_NAME)
 }
 
 
