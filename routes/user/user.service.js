@@ -6,17 +6,23 @@ const userInfo = new (require('../../functions/user.function.js'));
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
-
-const getUsername = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
-
+const helper = new (require('../../functions/helper.function.js'));
 
 const loginUser = async (req, res, next) => {
 
 	const { username, password } = req.body;
     try {
 
+		// Validate the request
+		if (!username || !password) {
+			return res.status(200).json({
+				success: false,
+				message: 'Missing required fields'
+			});
+		}
+	
         // Find the user by username
-        const user = await User.findOne(getUsername(username));
+        const user = await User.findOne(helper.getUsername(username));
         if (!user) {
 			console.log(user);
             return res.status(404).json({ message: 'User not found', success: false });
@@ -57,7 +63,7 @@ const registerUser = async (req, res, next) => {
 		});
     }
 
-	const usernameExists = await User.findOne(getUsername(username));
+	const usernameExists = await User.findOne(helper.getUsername(username));
 
 	if (usernameExists) {
 		return res.status(200).json({

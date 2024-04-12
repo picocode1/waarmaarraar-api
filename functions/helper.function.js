@@ -70,5 +70,17 @@ var helper = class helper {
 		return `${day} ${month}, ${year}`
 	}
 
+	/**
+	 * Get a user by username
+	 * 
+	 * @param {string} user
+	 * @returns {object}
+	 * @example
+	 * helper.getUsername('rik'); // { username: { '$regex': /^rik/i } }
+	 * 	
+	*/
+	getUsername = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
+
+
 };
 module.exports = helper
