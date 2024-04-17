@@ -14,26 +14,43 @@ const getUsername = user => { return { username: { $regex: new RegExp("^" + user
 class userInfo {
 
 	/**
-	 * Get user info by username.
+	 *
 	 * @param {string} username - The username of the user.
 	 * @param {string} authedUser - The username of the authenticated user.
+	 * @param {boolean} isID - Whether the username is an ID.
 	 * @returns {Object} - The user object.
-	 * @throws {Error} - If getting user info fails.
+	 * @throws {Error} - If user not found or if getting user info fails.
+	 * @example
+	 * const user = await userInfo.getInfo("username", "authedUser", false);
+	 * console.log(user); // { _id: ..., username: ..., ... }
 	 */
-	async getInfo(username, authedUser) {
+	async getInfo(username, authedUser, isID) {
 		try {
 			console.log({ "getInfo": username });
-			const userData = await User.findOne(getUsername(username))
-				.select('-password')
-				.populate({
-					path: 'role',
-					select: 'name displayName color'
-				});
-
+	
+			let userData;
+	
+			if (isID) {
+				userData = await User.findById(username)
+					.select('-password')
+					.populate({
+						path: 'role',
+						select: 'name displayName color'
+					})		
+			} else {
+				userData = await User.findOne(getUsername(username))
+					.select('-password')
+					.populate({
+						path: 'role',
+						select: 'name displayName color'
+					})
+			}
+	
+			console.log(userData);
 			if (!userData) {
 				return { message: "User not found", success: false };
 			}
-
+	
 			const connectionData = await Connection.findOne({ user: userData._id })
 				.populate({
 					path: 'followers',
@@ -43,14 +60,14 @@ class userInfo {
 					path: 'following',
 					select: 'username _id'
 				});
-
+	
 			userData.followers = connectionData.followers;
 			userData.following = connectionData.following;
-
+	
 			if (userData.private && authedUser !== username) {
 				return { username: userData.username, profile_picture: userData.profile_picture }
 			}
-
+	
 			return userData;
 		} catch (error) {
 			throw new Error(`Failed to get user info: ${error.message}`);
@@ -139,6 +156,58 @@ class userInfo {
 	}
 
 	/**
+	 * Get posts by user ID.
+	 * @param {string} userId - The user ID.
+	 * @returns {Array} - Array of posts.
+	 * @throws {Error} If fetching posts fails.
+	 * @example
+	 * const posts = await getPostsByUser("rik");
+	 * console.log(posts); // [ { _id: ..., title: ..., ... }, ... ]
+	 * @returns {Promise<Array>} - An array of post objects.
+	 *
+	*/
+	async getPostById(userId) {
+		try {
+			const posts = await Post.find({ user: userId });
+			return posts;
+		} catch (error) {
+			throw new Error(`Failed to get posts by user: ${error.message}`);
+		}
+	}
+
+
+	async getFollowingPosts(userId, amount) {
+		try {
+			// Find the user by ID
+			const user = await User.findById(userId);
+			if (!user) {
+				throw new Error("User not found");
+			}
+	
+			// Find the user's connections
+			const connections = await Connection.findOne({ user: userId });
+			if (!connections) {
+				throw new Error("User's connections not found");
+			}
+	
+			// Get the IDs of the users that the current user follows
+			const followingIds = connections.following.map(following => following.toString());
+	
+			console.log(followingIds);
+			
+			// Find posts by the user and their friends
+			const posts = await Post.find({ user: { $in: followingIds } })
+				.sort({ created_at: -1 }) // Sort by newest posts first
+				.limit(amount); // Limit the number of posts
+	
+			return posts;
+		} catch (error) {
+			throw new Error(`Failed to get friends' posts: ${error.message}`);
+		}
+	}
+
+	
+	/**
 	 * Get comments by post ID.
 	 * @param {string} postId - The post ID.
 	 * @returns {Array} - Array of comments.
@@ -155,6 +224,7 @@ class userInfo {
 		}
 	}
 
+	
 	/**
 	 * Add a friend to the user's friend list.
 	 * @param {string} username - The username of the friend to add.

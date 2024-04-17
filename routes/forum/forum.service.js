@@ -248,6 +248,32 @@ const getCommentsByUser = async (req, res) => {
     }
 };
 
+const getPostById = async (req, res) => {
+	try {
+		const { postId } = req.params;
+
+		// Retrieve post by post ID
+		const post = await userInfo.getPostById(postId);
+		res.status(200).json({ data: post, success: true });
+	} catch (error) {
+		res.status(500).json({ message: error.message, success: false });
+	}
+};
+
+const getFollowingPosts = async (req, res) => {
+	try {
+		const { amount } = req.params;
+        const UD = req.userData; // Assuming req.user is properly set in middleware
+
+		// Retrieve posts by user ID
+		const posts = await userInfo.getFollowingPosts(UD._id ,amount);
+		res.status(200).json({ data: posts, success: true });
+	} catch (error) {
+		res.status(500).json({ message: error.message, success: false });
+	}	
+};
+
+
 const getArticles = async (req, res) => {
     try {
         const articles = await userInfo.getArticles()
@@ -260,6 +286,7 @@ const getArticles = async (req, res) => {
 const sendMessage = async (req, res) => {
     try {
         const sender = req.userData._id; // Extract sender ID from authenticated user data
+        const senderName = req.userData.username; // Extract sender ID from authenticated user data
         const { receiver, message } = req.body;
 		console.log(req.body);
 
@@ -272,7 +299,7 @@ const sendMessage = async (req, res) => {
         await newMessage.save();
 
 		// Send a notification to the receiver
-		userInfo.sendNotification(receiver, `New message from ${sender}`, 'You have received a new message', sender);
+		userInfo.sendNotification(receiver, `New message from ${senderName}`, 'You have received a new message', sender);
 
         res.status(201).json({ message: 'Message sent successfully', success: true });
     } catch (error) {
@@ -284,53 +311,54 @@ const getConversation = async (req, res) => {
     try {
         const userId1 = req.userData._id;
         const userId2 = req.params.userId; // Extract the user ID from the request parameters
-        let amount = req.params.amount; // Extract the amount of messages from the request parameters
+        let amount = req.params.startAmount; // Extract the start amount of messages from the request parameters
+        let amount2 = req.params.endAmount; // Extract the end amount of messages from the request parameters
 
-        // Check if amount parameter exists and is a valid number
-        if (amount !== undefined && !isNaN(amount)) {
-            amount = parseInt(amount);
-            // Check if amount is within the allowed range (0 to 100)
-            if (amount < 0 || amount > 100) {
-                return res.status(400).json({ message: "Amount must be between 0 and 100", success: false });
-            }
-        } else {
-            amount = 10000; // Set amount to 10000 if not provided or not a number
+        // Parse the amounts to integers
+        amount = parseInt(amount);
+        amount2 = parseInt(amount2);
+
+        // Check if the provided amounts are valid numbers
+        if (isNaN(amount) || isNaN(amount2)) {
+           return res.status(400).json({ message: "Amounts must be valid numbers", success: false });
         }
 
-        var id = new mongoose.Types.ObjectId(userId2);
-        // Check if userid2 exists
-        const user = await User.findById(id);
-        if (!user) {
-            return res.status(404).json({ message: "User not found", success: false });
+        // Ensure amount and amount2 are positive integers
+        if (amount < 0 || amount2 < 0) {
+           return res.status(400).json({ message: "Amounts must be non-negative integers", success: false });
         }
 
-	
+        // Ensure amount2 is greater than or equal to amount
+        if (amount2 < amount) {
+           return res.status(400).json({ message: "End amount must be greater than start amount", success: false });
+        }
 
-        let query = {
+		// Check if values are not the same\
+		if (amount === amount2) {
+			return res.status(400).json({ message: "Amounts must be different", success: false });
+		}
+
+        // Query to find messages between userId1 and userId2
+        const query = {
             $or: [
                 { sender: userId1, receiver: userId2 },
                 { sender: userId2, receiver: userId1 }
             ]
         };
 
-		let messagesQuery = Message.find(query)
-		.sort({ timestamp: -1 }) // Sort in descending order to get the latest messages first
-		.limit(amount) // Replace X with the desired number of messages
-		.populate({
-			path: 'sender', // Populate the sender
-			select: 'username', // Select the username field
-		})
-		.populate({
-			path: 'receiver', // Populate the receiver
-			select: 'username', // Select the username field
-		});
-
-        // Limit the number of messages if amount parameter is provided
-        //if (amount !== null) {
-        //    messagesQuery = (await messagesQuery).reverse().slice(0, amount).reverse();
-        //}
-
-        const messages = await messagesQuery;
+        // Find messages between the users
+        const messages = await Message.find(query)
+            .sort({ timestamp: -1 }) // Sort in descending order to get the latest messages first
+            .skip(amount) // Skip the first 'amount' messages
+            .limit(amount2 - amount) // Limit the number of messages based on the range
+            .populate({
+                path: 'sender', // Populate the sender
+                select: 'username', // Select the username field
+            })
+            .populate({
+                path: 'receiver', // Populate the receiver
+                select: 'username', // Select the username field
+            });
 
         return res.status(200).json({ messages, success: true });
     } catch (error) {
@@ -420,5 +448,7 @@ module.exports = {
     getConversation,
 	getChatContacts,
 	addFollower,
-    addFollowing
+    addFollowing,
+	getPostById,
+	getFollowingPosts
 }

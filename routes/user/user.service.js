@@ -6,6 +6,9 @@ const userInfo = new (require('../../functions/user.function.js'));
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
+
+const ObjectId = require('mongoose').Types.ObjectId;
+
 const helper = new (require('../../functions/helper.function.js'));
 
 const loginUser = async (req, res, next) => {
@@ -201,7 +204,9 @@ const getUser = async (req, res, next) => {
 		let username = req.params.username
 		const authedUser = req.userData.username;
 		
-		userInfo.getInfo(username, authedUser).then(data => {
+		let isID = ObjectId.isValid(username)
+
+		userInfo.getInfo(username, authedUser, isID).then(data => {
 	
 			// need to stringify to fix for model
 			//_id: new ObjectId('65fa9784b2faffeafca95f20'),

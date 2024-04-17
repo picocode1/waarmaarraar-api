@@ -31,14 +31,10 @@ const userSchema = new mongoose.Schema({
     tags: [String],
     //notifications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Notification' }], // Reference to the Notification model
     private: Boolean,
-    followers: [{
+	connection: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User' // Refers to the User model
-    }],
-    following: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User' // Refers to the User model
-    }]
+        ref: 'Connection'
+    }
 }, { versionKey: false });
 
 // Create the User model based on the schema

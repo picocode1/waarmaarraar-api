@@ -61,10 +61,13 @@ router.post('/addReaction', jwtCheck, forumRateLimitPosting, (req, res) => forum
 router.get('/getCommentsByPost/:postId', jwtCheck, forumRateLimit, (req, res) => forumService.getCommentsByPost(req, res));
 router.get('/getCommentsByUser/:userId', jwtCheck, forumRateLimit, (req, res) => forumService.getCommentsByUser(req, res));
 
+router.get('/getPostById/:postId', jwtCheck, forumRateLimit, (req, res) => forumService.getPostById(req, res));
+router.get('/getFollowingPosts/:amount', jwtCheck, forumRateLimit, (req, res) => forumService.getFollowingPosts(req, res));
+
 router.get('/getArticles', forumRateLimit, (req, res) => forumService.getArticles(req, res));
 
 router.post('/send', jwtCheck, sendMessageRateLimit, (req, res) => forumService.sendMessage(req, res));
-router.get('/conversation/:userId/:amount?', jwtCheck, forumRateLimit, (req, res) => forumService.getConversation(req, res));
+router.get('/conversation/:userId/:startAmount?/:endAmount?', jwtCheck, forumRateLimit, (req, res) => forumService.getConversation(req, res));
 router.get('/chatContacts', jwtCheck, forumRateLimit, (req, res) => forumService.getChatContacts(req, res));
 
 router.post('/follow/:username', jwtCheck, forumRateLimit, (req, res) => forumService.addFollower(req, res));
