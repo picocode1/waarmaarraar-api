@@ -51,6 +51,7 @@ var helper = class helper {
 		return result;
 	}
 
+
 	/**
 	 * Convert a unix timestamp to a date
 	 * 

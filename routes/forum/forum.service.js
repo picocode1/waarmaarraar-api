@@ -236,6 +236,7 @@ const getCommentsByPost = async (req, res) => {
     }
 };
 
+
 const getCommentsByUser = async (req, res) => {
 	try {
 		const { userId } = req.params;

@@ -46,7 +46,6 @@ class userInfo {
 					})
 			}
 	
-			console.log(userData);
 			if (!userData) {
 				return { message: "User not found", success: false };
 			}
@@ -60,15 +59,19 @@ class userInfo {
 					path: 'following',
 					select: 'username _id'
 				});
-	
-			userData.followers = connectionData.followers;
-			userData.following = connectionData.following;
-	
+
+			let data = JSON.parse(JSON.stringify(userData));
+			data.followers = connectionData.followers;
+			data.following = connectionData.following;
+			// console.log(typeof(userData))
+
 			if (userData.private && authedUser !== username) {
 				return { username: userData.username, profile_picture: userData.profile_picture }
 			}
-	
-			return userData;
+			
+			// console.log(userData);
+
+			return data;
 		} catch (error) {
 			throw new Error(`Failed to get user info: ${error.message}`);
 		}
@@ -224,33 +227,34 @@ class userInfo {
 		}
 	}
 
-	
+
+
 	/**
 	 * Add a friend to the user's friend list.
 	 * @param {string} username - The username of the friend to add.
 	 * @returns {Object} - The updated user object.
 	 * @throws {Error} If user not found or if adding friend fails.
 	 */
-	async addFriend(username) {
-		try {
-			// Step 1: Find the user by username to get their ID
-			const user = await User.findOne(getUsername(username));
-			if (!user) {
-				throw new Error("User not found");
-			}
-	
-			// Step 2: Update the user document to add the friend's ID to the friends array if it doesn't already exist
-			const updatedUser = await User.findOneAndUpdate(
-				{ username: username, "friends": { $nin: [user._id] } }, // Check if friend's ID doesn't already exist in the array
-				{ $addToSet: { friends: user._id } }, // Add the friend's ID to the array if it doesn't already exist
-				{ new: true } // Return the updated document
-			);
-	
-			return updatedUser;
-		} catch (error) {
-			throw new Error(`Failed to add friend: ${error.message}`);
-		}
-	}
+	//async addFriend(username) {
+	//	try {
+	//		// Step 1: Find the user by username to get their ID
+	//		const user = await User.findOne(getUsername(username));
+	//		if (!user) {
+	//			throw new Error("User not found");
+	//		}
+	//
+	//		// Step 2: Update the user document to add the friend's ID to the friends array if it doesn't already exist
+	//		const updatedUser = await User.findOneAndUpdate(
+	//			{ username: username, "friends": { $nin: [user._id] } }, // Check if friend's ID doesn't already exist in the array
+	//			{ $addToSet: { friends: user._id } }, // Add the friend's ID to the array if it doesn't already exist
+	//			{ new: true } // Return the updated document
+	//		);
+	//
+	//		return updatedUser;
+	//	} catch (error) {
+	//		throw new Error(`Failed to add friend: ${error.message}`);
+	//	}
+	//}
 
 
 	/**
@@ -385,56 +389,8 @@ class userInfo {
         }
     }
 
-	/**
-	 * Add a follower to the user's followers list and the user to the follower's following list.
-	 * @param {string} username - The username of the user.
-	 * @param {string} followerUsername - The username of the follower to add.
-	 * @returns {Object} - Success message object.
-	 * @throws {Error} - If user or follower not found, or if adding follower fails.
-	 * @example
-	 * const result = await addFollower("username", "followerUsername");
-	 * console.log(result); // { message: ..., success: true }
-	 */
-	async addFollower(username, followerUsername) {
-		try {
-			// Find the user and the follower by username to get their IDs
-			const user = await User.findOne(getUsername(username));
-			const followerUser = await User.findOne({ username: followerUsername });
 
-			// Check if both user and follower exist
-			if (!user || !followerUser) {
-				throw new Error("User or follower not found");
-			}
 
-			// Find or create the connection document for the user
-			let connection = await Connection.findOne({ user: user._id });
-			if (!connection) {
-				connection = new Connection({ user: user._id });
-			}
-
-			// Check if the follower's ID is already in the followers array
-			if (connection.followers.includes(followerUser._id)) {
-				return { message: `You are already following ${username}`, success: true }; // Return success message
-			}
-
-			// Update the connection document to add the follower's ID to the followers array
-			connection.followers.push(followerUser._id);
-			await connection.save(); // Save the updated connection document
-
-			// Update the follower's following list to add the user's ID
-			let followerConnection = await Connection.findOne({ user: followerUser._id });
-			if (!followerConnection) {
-				followerConnection = new Connection({ user: followerUser._id });
-			}
-			followerConnection.following.push(user._id);
-			await followerConnection.save();
-
-			return { message: `You are now following ${username}`, success: true };
-		} catch (error) {
-			return { message: `Failed to add follower: ${error.message}`, success: false };
-		}
-	}
-		
 //	async areFriends(userId1, userId2) {
 //		try {
 //			// Find both users by their IDs

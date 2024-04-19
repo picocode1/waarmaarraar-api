@@ -133,12 +133,10 @@ const logger = createLogger({
 });
 
 
-// Middleware to set the CORS headers
+// Middleware to log requests
 app.use((req, res, next) => {
-
 	// URL Decoding for logging
 	const URL = decodeURIComponent(req.originalUrl);
-
     let loggerText = `${req.method} ${URL}`;
 
     if (req.method === 'POST' && req.body) {
@@ -146,14 +144,19 @@ app.use((req, res, next) => {
     }
 
     logger.info(loggerText);
-    
-
-    res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Max-Age', 600); // remove later
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Accept');
     next();
 });
+
+// Set headers for CORS
+app.use((req, res, next) => {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.setHeader('Access-Control-Max-Age', 600); // remove later
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+	res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Accept');
+	next();
+});
+
+
 
 app.use(express.static(__dirname + '/public'));
 app.disable('x-powered-by');
@@ -168,19 +171,12 @@ app.get("/", (req, res) => {
 	res.send("hello")
 })
 
-
-// Add https to the server
-// I have in the certificates folder the key and cert files
-// called ssl_certificate.crt and ssl_private_key.key
-
-
-const options = {
+const SSL = {
 	key: fs.readFileSync('./certificates/ssl_private_key.key'),
 	cert: fs.readFileSync('./certificates/ssl_certificate.crt')
 };
 
-
-const server = https.createServer(options, app);
+const server = https.createServer(SSL, app);
 
 server.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
 
