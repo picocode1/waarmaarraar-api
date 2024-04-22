@@ -168,7 +168,17 @@ fs.readdirSync('./routes').forEach(file => {
 });
 
 app.get("/", (req, res) => {
-	res.send("hello")
+	// 212 Method not found
+	res.status(212).send("Method not found");
+})
+
+
+app.get("/api", (req, res) => {
+	const routes = [...urls].sort();
+	res.json({ 
+		routes,
+		success: true,
+	});
 })
 
 const SSL = {
