@@ -52,6 +52,12 @@ const createPost = async (req, res) => {
         // Save the post to the database
         const savedPost = await newPost.save();
 
+		// Increment the forum_posts_count field in the user document
+		userInfo.incrementField(UD.username, "forum_posts_count", 1);
+		
+		// lastForumPost
+		userInfo.updateLastPost(UD.username);
+
         // Respond with success message
         res.status(200).json({ message: 'Post created successfully', 
 			// Remove later, only for testing

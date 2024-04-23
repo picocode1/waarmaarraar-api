@@ -91,7 +91,7 @@ const registerUser = async (req, res, next) => {
 		signup_date: new Date(),
 
 		// Be able to changed later
-		profile_picture: '',
+		profile_picture: '/images/default.jpg',
 		name: '',
 		role: global.roles["User"], // Using the _id of the default role document
 		residence: '',
@@ -141,6 +141,24 @@ const registerUser = async (req, res, next) => {
 const logoutUser = async (req, res, next) => {
 	res.clearCookie(process.env.JWT_NAME)
 }
+
+const updateUser = async (req, res, next) => {
+	try {
+		const authedUser = req.userData
+
+		const { name, residence, birthday, profession, tags } = req.body;
+
+		const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags);
+
+		return res.status(200).json({ message: "User updated successfully", success: true });
+	} catch (error) {
+		// Return error response
+		return res.status(500).json({ message: error.message, success: false  });
+	}
+}
+
+
+
 
 
 const addFriend = async (req, res, next) => {
@@ -205,7 +223,7 @@ const getUser = async (req, res, next) => {
 		const authedUser = req.userData.username;
 		
 		let isID = ObjectId.isValid(username)
-
+		
 		userInfo.getInfo(username, authedUser, isID).then(data => {
 	
 			// need to stringify to fix for model
@@ -223,4 +241,4 @@ const getUser = async (req, res, next) => {
 }
 
 
-module.exports = { loginUser, registerUser, getUser, logoutUser, addFriend, sendMessage, getNotifications };
+module.exports = { loginUser, registerUser, getUser, logoutUser, addFriend, sendMessage, getNotifications, updateUser };

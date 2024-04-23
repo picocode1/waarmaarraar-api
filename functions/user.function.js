@@ -142,6 +142,23 @@ class userInfo {
 		}
 	}
 
+	// add date to last_forum_post
+	async updateLastPost(username) {
+		try {
+			// Find the user document by username and increment the specified field
+			const updatedUser = await User.findOneAndUpdate( 
+				{ username: username },
+				{ last_forum_post: new Date() },
+				{ new: true } // Return the updated document
+			);
+			return updatedUser;
+		}
+		catch (error) {
+			throw new Error(`Failed to update last forum post: ${error.message}`);
+		}
+	}
+
+
 
 	/**
 	 * Get comments by user ID.
@@ -201,8 +218,12 @@ class userInfo {
 			// Find posts by the user and their friends
 			const posts = await Post.find({ user: { $in: followingIds } })
 				.sort({ created_at: -1 }) // Sort by newest posts first
-				.limit(amount); // Limit the number of posts
-	
+				.limit(amount) // Limit the number of posts
+				.populate({
+					path: 'user',
+					select: 'profile_picture'
+				});
+			
 			return posts;
 		} catch (error) {
 			throw new Error(`Failed to get friends' posts: ${error.message}`);
@@ -389,6 +410,48 @@ class userInfo {
         }
     }
 
+
+	// const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags);
+	
+	async updateUser(authedUser, name, residence, birthday, profession, tags) {
+		try {
+			// Find the user by username
+			const user = await User.findOne(getUsername(authedUser));
+			if (!user) {
+				throw new Error("User not found");
+			}
+
+			// Cap the number of tags at 10
+			tags.length = 10;
+			
+			// Filter out undefined values
+			tags = tags.filter(tag => tag !== undefined);
+
+			// Parse birthday string to a Date object (Dutch date format)
+			const dateRegex = /(\d{2})-(\d{2})-(\d{4})/;
+			const [, day, month, year] = birthday.match(dateRegex); // Using destructuring to extract matched groups
+			
+			// Note: Month is zero-based in JavaScript Date objects, so we subtract 1 from the month value
+			const birthdayDate = new Date(year, month - 1, day);
+
+
+			// Update the user's fields
+			user.name = name;
+			user.residence = residence;
+			user.birthday = birthdayDate;
+			user.profession = profession;
+			user.tags = tags;
+
+			console.log(user);
+	
+			// Save the updated user document
+			await user.save();
+	
+			return user;
+		} catch (error) {
+			throw new Error(`Failed to update user: ${error.message}`);
+		}
+	}
 
 
 //	async areFriends(userId1, userId2) {

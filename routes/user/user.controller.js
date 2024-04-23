@@ -47,6 +47,9 @@ router.post('/register', loginRegisterRateLimit, (req, res) => userService.regis
 
 router.get('/logout', jwtCheck, (req, res) => userService.logoutUser(req, res));
 
+// Update user info
+router.put('/updateUser', jwtCheck, userRateLimit, (req, res) => userService.updateUser(req, res));
+
 // Apply userRateLimit middleware to these routes
 router.post('/addFriend/:username', jwtCheck, userRateLimit, (req, res) => userService.addFriend(req, res));
 router.get('/getUser/:username', jwtCheck, userRateLimit, (req, res) => userService.getUser(req, res));

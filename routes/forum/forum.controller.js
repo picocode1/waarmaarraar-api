@@ -28,7 +28,7 @@ const forumRateLimit = rateLimit({
 
 const sendMessageRateLimit = rateLimit({
     windowMs: toMinutes(1), // for example, 1 minute
-    max: 20, // for example, 5 requests per minute
+    max: 15, // for example, 5 requests per minute
     handler: function (req, res, next) {
         res.status(429).json({
             message: "Too many requests for sending messages, please try again later.",
@@ -67,7 +67,7 @@ router.get('/getFollowingPosts/:amount', jwtCheck, forumRateLimit, (req, res) =>
 router.get('/getArticles', forumRateLimit, (req, res) => forumService.getArticles(req, res));
 
 router.post('/send', jwtCheck, sendMessageRateLimit, (req, res) => forumService.sendMessage(req, res));
-router.get('/conversation/:userId/:startAmount?/:endAmount?', jwtCheck, forumRateLimit, (req, res) => forumService.getConversation(req, res));
+router.get('/conversation/:userId/:startAmount?/:endAmount?', jwtCheck, sendMessageRateLimit, (req, res) => forumService.getConversation(req, res));
 router.get('/chatContacts', jwtCheck, forumRateLimit, (req, res) => forumService.getChatContacts(req, res));
 
 router.post('/follow/:username', jwtCheck, forumRateLimit, (req, res) => forumService.addFollower(req, res));
