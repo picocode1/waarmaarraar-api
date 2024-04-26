@@ -1,7 +1,5 @@
 const emoji = require('node-emoji');
 
-console.log(emoji.search('ap'));
-
 var helper = class helper {
 
 	/**
@@ -103,10 +101,13 @@ var helper = class helper {
 	// Function to convert emojis in comment content
 
 	/**
-	 * Convert emojis in comments
+	 * Convert emojis in a string
 	 * 
-	 * @param {array} comments
-	 * @returns {array}
+	 * @param {string} data
+	 * @param {string} type
+	 * @returns {string}
+	 * @example
+	 * helper.convertEmojis('Hello :smile:', 'comment'); // 'Hello 😄
 	 *
 	*/
 	convertEmojis = (data, type) => {

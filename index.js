@@ -165,11 +165,6 @@ fs.readdirSync('./routes').forEach(file => {
 	app.use(`/${file}/`, require(`./routes/${file}/${file}.controller`));
 });
 
-app.get("/", (req, res) => {
-	// 212 Method not found
-	res.status(212).send("Method not found");
-})
-
 
 app.get("/api", (req, res) => {
     const sortedRoutes = [...urls].sort((a, b) => {
@@ -235,3 +230,8 @@ app._router.stack.forEach(print.bind(null, []))
 urls.forEach(url => {
 	console.log(url);
 })
+
+// Error handler
+app.get("*", (req, res, next) => {
+	res.status(212).json({ message: "URL not found", success: false  });
+});
