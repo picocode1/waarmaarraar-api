@@ -14,6 +14,8 @@ const commentSchema = new mongoose.Schema({
     post_id: mongoose.Schema.Types.ObjectId,
     content: String,
     created_at: Date,
+	// is_emoji: Boolean,
+	// emoji: String
 }, { versionKey: false });
 
 

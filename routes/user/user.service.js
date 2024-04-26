@@ -47,8 +47,7 @@ const loginUser = async (req, res, next) => {
 		
 		// Set the cookie en send json token back
 		// res.cookie('JWT_TOKEN', token, { httpOnly: true });
-		res.status(200).json({ message: "You have been logged in successfully", jwt: token, success: true });
-
+		res.status(200).json({ _id: user._id, message: "You have been logged in successfully", jwt: token, success: true });
     } catch (error) {
         res.status(500).json({ message: error.message, success: false });
     }

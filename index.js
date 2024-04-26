@@ -87,8 +87,6 @@ populateRolesObject()
 // })
 
 
-app.engine('html', require('ejs').renderFile);
-
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -174,12 +172,26 @@ app.get("/", (req, res) => {
 
 
 app.get("/api", (req, res) => {
-	const routes = [...urls].sort();
-	res.json({ 
-		routes,
-		success: true,
-	});
-})
+    const sortedRoutes = [...urls].sort((a, b) => {
+        // Extract path prefixes
+        const prefixA = a.split('/')[1];
+        const prefixB = b.split('/')[1];
+
+        // Compare path prefixes first
+        const prefixComparison = prefixA.localeCompare(prefixB);
+        if (prefixComparison !== 0) {
+            return prefixComparison;
+        }
+
+        // If path prefixes are the same, compare full routes
+        return a.localeCompare(b);
+    });
+
+    res.json({
+        routes: sortedRoutes,
+        success: true,
+    });
+});
 
 const SSL = {
 	key: fs.readFileSync('./certificates/ssl_private_key.key'),
@@ -207,7 +219,6 @@ function print(path, layer) {
 }
 
 function split(thing) {
-		
 	if (typeof thing === 'string') {
 		return thing.split('/')
 	} else {
@@ -215,9 +226,7 @@ function split(thing) {
 			.replace('\\/?', '')
 			.replace('(?=\\/|$)', '$')
 			.match(/^\/\^((?:\\[.*+?^${}()|[\]\\\/]|[^.*+?^${}()|[\]\\\/])*)\$\//)
-		return match ?
-			match[1].replace(/\\(.)/g, '$1').split('/') :
-			'<complex:' + thing.toString() + '>'
+		return match ? match[1].replace(/\\(.)/g, '$1').split('/') : '<complex:' + thing.toString() + '>'
 	}
 }
 app._router.stack.forEach(print.bind(null, []))

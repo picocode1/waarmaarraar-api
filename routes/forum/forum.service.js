@@ -9,10 +9,13 @@ const Reaction = require('./models/reaction.model.js');
 const Role = require('../../models/roles.model.js');
 
 const userInfo = new (require('../../functions/user.function.js'));
+const helper = new (require('../../functions/helper.function.js'));
 
 const Message = require('../../models/message.model.js');
 
 const Connection = require('../../models/connections.model.js')
+
+
 
 
 const createPost = async (req, res) => {
@@ -20,9 +23,9 @@ const createPost = async (req, res) => {
 		// If authentication succeeds, continue with createPost logic
         const UD = req.userData; // Assuming req.user is properly set in middleware
 
-        const userData = await User.findOne({ username: UD.username });
+		const userData = await User.findOne({ username: UD.username }).populate('role');
 
-        const { title, content, category, meta_tags, image } = req.body;
+        const { title, content, category, meta_tags, image, article } = req.body;
         
 		if (!content) {
 			res.status(400).json({ message: "Missing content", success: false});
@@ -33,20 +36,24 @@ const createPost = async (req, res) => {
 			return;
 		}
 
-        // Generate new ObjectId for the post
-        const newPost = new Post({
-            _id: new mongoose.Types.ObjectId(),
+		const hasPermission = helper.hasPermission(userData.role.name);
+
+		// Check if article is true and if user has permission
+		const isArticle = hasPermission && article;
+		
+		// Generate new ObjectId for the post
+		const newPost = new Post({
+			_id: new mongoose.Types.ObjectId(),
 			user: userData._id,
-			
 			username: UD.username,
 			title,
 			content,
 			category: category ?? "",
 			meta_tags: meta_tags ?? [],
 			created_at: new Date(),
-			is_article: false,
+			is_article: isArticle,
 			image
-        });
+		});
         
 
         // Save the post to the database
@@ -117,11 +124,16 @@ const addComment = async (req, res) => {
 
 
 const createArticle = async (req, res) => {
+	res.status(400).json({ message: "Not used anymore", success: false});
+	return
 	try {
+
+		
+
 		// If authentication succeeds, continue with createArticle logic
         const UD = req.userData; // Assuming req.user is properly set in middleware
 
-		const userData = await User.findOne({ username: UD.username }).populate('notifications').populate('role');
+		const userData = await User.findOne({ username: UD.username }).populate('role');
 
 		
         // not tested
@@ -132,7 +144,9 @@ const createArticle = async (req, res) => {
 
 		console.log(userData);
 
-		const hasPermission = userData.role.name === "Administrator" || userData.role.name === "Moderator";
+		// const hasPermission = userData.role.name === "Administrator" || userData.role.name === "Moderator";
+
+		const hasPermission = helper.hasPermission(userData.role.name)
 
 
 
@@ -236,7 +250,11 @@ const getCommentsByPost = async (req, res) => {
 
         // Retrieve comments by post ID
         const comments = await userInfo.getCommentsByPost(postId);
-		res.status(200).json({ data: comments, success: true });
+
+		// log the content of the comments
+		const commentsWithEmojis = helper.convertEmojis(comments, "comment");
+
+		res.status(200).json({ data: commentsWithEmojis, success: true });
     } catch (error) {
         res.status(500).json({ message: error.message, success: false  });
     }
@@ -249,7 +267,10 @@ const getCommentsByUser = async (req, res) => {
 		
         // Retrieve comments by user ID
         const comments = await userInfo.getCommentsByUser(userId);
-		res.status(200).json({ data: comments, success: true });
+
+		const commentsWithEmojis = helper.convertEmojis(comments, "comment");
+
+		res.status(200).json({ data: commentsWithEmojis, success: true });
     } catch (error) {
 		res.status(500).json({ message: error.message, success: false  });
     }
@@ -261,7 +282,11 @@ const getPostById = async (req, res) => {
 
 		// Retrieve post by post ID
 		const post = await userInfo.getPostById(postId);
-		res.status(200).json({ data: post, success: true });
+
+		const postWithEmojis = helper.convertEmojis(post, "article");
+
+
+		res.status(200).json({ data: postWithEmojis, success: true });
 	} catch (error) {
 		res.status(500).json({ message: error.message, success: false });
 	}
@@ -284,7 +309,10 @@ const getFollowingPosts = async (req, res) => {
 const getArticles = async (req, res) => {
     try {
         const articles = await userInfo.getArticles()
-        res.status(200).json(articles);
+
+		const articlesWithEmojis = helper.convertEmojis(articles, "article");
+
+        res.status(200).json(articlesWithEmojis);
     } catch (error) {
         res.status(500).json({ error: `Failed to get articles: ${error.message}`, success: false});
     }
@@ -354,7 +382,7 @@ const getConversation = async (req, res) => {
         };
 
         // Find messages between the users
-        const messages = await Message.find(query)
+        const findMessages = await Message.find(query)
             .sort({ timestamp: -1 }) // Sort in descending order to get the latest messages first
             .skip(amount) // Skip the first 'amount' messages
             .limit(amount2 - amount) // Limit the number of messages based on the range
@@ -366,6 +394,9 @@ const getConversation = async (req, res) => {
                 path: 'receiver', // Populate the receiver
                 select: 'username', // Select the username field
             });
+		
+		const messages = helper.convertEmojis(findMessages, "message");
+
 
         return res.status(200).json({ messages, success: true });
     } catch (error) {
@@ -419,11 +450,11 @@ const addFollower = async (req, res) => {
             return res.status(200).json({ message: result.message, success: true });
         } else {
             return res.status(400).json({ message: result.message, success: false });
-        }
-    } catch (error) {
-        return res.status(500).json({ message: error.message, success: false });
-    }
-};
+			}
+		} catch (error) {
+			return res.status(500).json({ message: error.message, success: false });
+		}
+	};
 
 
 const addFollowing = async (req, res) => {

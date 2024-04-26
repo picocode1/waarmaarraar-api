@@ -1,3 +1,7 @@
+const emoji = require('node-emoji');
+
+console.log(emoji.search('ap'));
+
 var helper = class helper {
 
 	/**
@@ -82,6 +86,75 @@ var helper = class helper {
 	*/
 	getUsername = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
 
+	/**
+	 * Check if a user has a certain role
+	 * 
+	 * @param {string} role
+	 * @returns {boolean}
+	 * @example
+	 * helper.hasPermission('Administrator'); // true
+	 * helper.hasPermission('Moderator'); // true
+	 * helper.hasPermission('User'); // false
+	 *
+	*/
+	hasPermission = role => { return role === "Administrator" || role === "Moderator" }
 
+
+	// Function to convert emojis in comment content
+
+	/**
+	 * Convert emojis in comments
+	 * 
+	 * @param {array} comments
+	 * @returns {array}
+	 *
+	*/
+	convertEmojis = (data, type) => {
+		switch (type) {
+			case 'comment':
+				return data.map(comment => {
+					const content = comment.content.trim();
+					const isEmoji = emoji.has(content)
+			
+					// Create a deep copy of the comment object
+					const updatedComment = JSON.parse(JSON.stringify(comment));
+			
+					// Update the content and onlyEmoji properties in the copied comment
+					updatedComment.content = emoji.emojify(content)
+					updatedComment.onlyEmoji = isEmoji;
+			
+					return updatedComment;
+				})
+			case 'article':
+				return data.map(article => {
+					const content = article.content.trim();
+					const title = article.title.trim();
+	
+					// Create a deep copy of the comment object
+					const updatedArticle = JSON.parse(JSON.stringify(article));
+			
+					// Update the content and onlyEmoji properties in the copied comment
+					updatedArticle.content = emoji.emojify(content)
+					updatedArticle.title = emoji.emojify(title)
+			
+					return updatedArticle;
+				})
+
+			case 'message':
+				return data.map(messages => {
+					const message = messages.message.trim();
+
+					// Create a deep copy of the comment object
+					const updatedMessage = JSON.parse(JSON.stringify(messages));
+			
+					// Update the content and onlyEmoji properties in the copied comment
+					updatedMessage.message = emoji.emojify(message)
+	
+					return updatedMessage;
+				})
+			default:
+				return emoji.emojify(data)
+		}
+	}
 };
 module.exports = helper
