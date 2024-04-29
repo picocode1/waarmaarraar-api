@@ -19,8 +19,6 @@ const { createLogger, format, transports } = winston;
 const { combine, label, printf } = format;
 const DailyRotateFile = require('winston-daily-rotate-file');
 
-
-global.roles = {};
 // Global object to store role IDs by role name
 
 // userInfo.updateUserRank("rik", "Administrator")
@@ -30,12 +28,13 @@ global.roles = {};
 // userInfo.areFriends("65fab62d10ca366b23aa9a0d", "65fab62d10ca366b23aa9a0d").then(data => {
 // 	console.log(data);
 // })
-
+	
 // userInfo.getUserRole("rik").then(data => {
 // 	console.log(data);
 // })
-
-
+		
+		
+		global.roles = {};
 // Function to populate the global roles object with role IDs
 async function populateRolesObject() {
     try {
@@ -61,32 +60,6 @@ async function populateRolesObject() {
 
 populateRolesObject()
 
-// user.getInfo("rik").then(data => {
-// 	console.log(data);
-
-// 	{
-// 		_id: new ObjectId('65f46988a75094879959bd0e'),
-// 		username: 'rik',
-// 		password: '$2b$10$.JLbKWmTnycWCwo4YDJhvOFPTbKbv5Syf37uCJBxOPZDMNA61tLYm',
-// 		signup_date: 2024-03-15T15:30:16.536Z,
-// 		profile_picture: '',
-// 		name: '',
-// 		residence: '',
-// 		age: null,
-// 		profession: '',
-//		role: '65fa90d19b18b0bcf6c8b788',
-// 		comments_count: 0,
-// 		articles_count: 0,
-// 		last_online: null,
-// 		reactions_count: 0,
-// 		forum_posts_count: 0,
-// 		last_forum_post: null,
-// 		tags: [],
-// 		friends: []
-// 	}
-// })
-
-
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -99,7 +72,7 @@ app.use(require('./middleware/mobile.middleware')) // req.isMobile - use anywher
 
 
 // Define log format
-const logFormat = printf(({ level, message, label }) => {
+const logFormat = printf(({ level, message, label}) => {
     const now = new Date();
 	const formattedDate = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} - ${now.getDate().toString().padStart(2, '0')}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getFullYear()}`;
 
@@ -129,7 +102,6 @@ const logger = createLogger({
         })
     ]
 });
-
 
 // Middleware to log requests
 app.use((req, res, next) => {

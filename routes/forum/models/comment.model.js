@@ -6,12 +6,16 @@ const commentSchema = new mongoose.Schema({
 		required: true,
 		auto: true,
 	},
-    user: { // Change from user_id to user
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // Refers to the User model
         required: true
     },
-    post_id: mongoose.Schema.Types.ObjectId,
+    post_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post', // Refers to the User model
+        required: true
+    },
     content: String,
     created_at: Date,
 	// is_emoji: Boolean,

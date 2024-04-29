@@ -254,6 +254,7 @@ const getCommentsByPost = async (req, res) => {
 		// log the content of the comments
 		const commentsWithEmojis = helper.convertEmojis(comments, "comment");
 
+
 		res.status(200).json({ data: commentsWithEmojis, success: true });
     } catch (error) {
         res.status(500).json({ message: error.message, success: false  });

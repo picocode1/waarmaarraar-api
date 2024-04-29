@@ -7,8 +7,6 @@ const Notification = require('../models/notification.model')
 const Post = require('../routes/forum/models/post.model')
 const Connection = require('../models/connections.model')
 
-
-
 const getUsername = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
 
 class userInfo {
@@ -168,7 +166,7 @@ class userInfo {
 	 */
 	async getCommentsByUser(userId) {
 		try {
-			const comments = await Comments.find({ user_id: userId });
+			const comments = await Comments.find({ user: userId }).populate('post_id', '-user')
 			return comments;
 		} catch (error) {
 			throw new Error(`Failed to get comments by user: ${error.message}`);

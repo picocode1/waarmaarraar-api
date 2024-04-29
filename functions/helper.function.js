@@ -1,5 +1,22 @@
 const emoji = require('node-emoji');
 
+function deepClone(obj) {
+	if (obj === null || typeof obj !== 'object') {
+		return obj;
+	}
+	
+	let clone = Array.isArray(obj) ? [] : {};
+
+	for (let key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			clone[key] = deepClone(obj[key]);
+		}
+	}
+
+	return clone;
+}
+
+
 var helper = class helper {
 
 	/**
@@ -111,21 +128,34 @@ var helper = class helper {
 	 *
 	*/
 	convertEmojis = (data, type) => {
+		console.log(data);
+		let emojiObject = {}; // Define the emojiObject outside of the map function
 		switch (type) {
 			case 'comment':
-				return data.map(comment => {
+				const updatedData = data.map(comment => {
 					const content = comment.content.trim();
-					const isEmoji = emoji.has(content)
-			
+					const isEmoji = emoji.has(content);
+	
 					// Create a deep copy of the comment object
 					const updatedComment = JSON.parse(JSON.stringify(comment));
-			
+	
 					// Update the content and onlyEmoji properties in the copied comment
-					updatedComment.content = emoji.emojify(content)
+					updatedComment.content = emoji.emojify(content);
 					updatedComment.onlyEmoji = isEmoji;
-			
+	
+					// Fill the emojiObject with the current emoji and the amount of times it appears in the comment
+					if (isEmoji) {
+						emojiObject[content] = emojiObject[content] ? emojiObject[content] + 1 : 1;
+					}
+	
+					console.log(updatedComment);
+	
 					return updatedComment;
-				})
+				});
+				// Attach the emojiObject to the main array only if the type is 'comment'
+				updatedData.push({ totalEmojis: emojiObject }); // Add emoji object at the end of the array
+				console.log(updatedData); // Log the updatedData for debugging
+				return updatedData;
 			case 'article':
 				return data.map(article => {
 					const content = article.content.trim();

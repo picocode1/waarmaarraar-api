@@ -33,9 +33,6 @@ const loginRegisterRateLimit = rateLimit({
 });
 
 
-
-
-
 // If anything is required with jwt/logged in user
 const jwtCheck = require('../../middleware/jwt.middleware');
 // router.post('/x', jwt, (req, res) => userService.x(req, res));
