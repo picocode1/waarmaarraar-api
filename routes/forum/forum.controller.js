@@ -4,6 +4,8 @@ const router = express.Router();
 const forumService = require('./forum.service');
 const userInfo = new (require('../../functions/user.function'));
 
+require('dotenv').config();
+const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
 
 const rateLimit = require('express-rate-limit');
 
@@ -20,7 +22,7 @@ const forumRateLimit = rateLimit({
     statusCode: 200,
     handler: function (req, res, next) {
         res.status(429).json({
-            message: "Too many requests, please try again later.",
+            message: MESSAGE.tooManyRequests,
             success: false
         });
     }
@@ -31,7 +33,7 @@ const sendMessageRateLimit = rateLimit({
     max: 15, // for example, 5 requests per minute
     handler: function (req, res, next) {
         res.status(429).json({
-            message: "Too many requests for sending messages, please try again later.",
+            message: MESSAGE.tooManyRequestsForSendingMessages,
             success: false
         });
     }
@@ -44,7 +46,7 @@ const forumRateLimitPosting = rateLimit({
     statusCode: 200,
     handler: function (req, res, next) {
         res.status(429).json({
-            message: "Too many requests, please try again later.",
+            message: MESSAGE.tooManyRequests,
             success: false
         });
     }

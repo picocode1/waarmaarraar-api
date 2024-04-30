@@ -4,6 +4,12 @@ const userService = require('./user.service');
 
 const rateLimit = require('express-rate-limit');
 
+require('dotenv').config();
+const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
+
+
+// eduarte gewerkt aan messages text veld en emoji codeb
+
 let toMinutes = n => n * 60 * 1000
 
 
@@ -14,7 +20,7 @@ const userRateLimit = rateLimit({
     statusCode: 200,
     handler: function (req, res, next) {
         res.status(429).json({
-            message: "Too many requests, please try again later.",
+            message: MESSAGE.tooManyRequests,
             success: false
         });
     }
@@ -26,7 +32,7 @@ const loginRegisterRateLimit = rateLimit({
     max: 5, // 10 requests per minute
     handler: function (req, res, next) {
         res.status(429).json({
-            message: "Too many requests for login or register, please try again later.",
+            message: MESSAGE.tooManyRequestsForLoginOrRegister,
             success: false
         });
     }
@@ -51,6 +57,9 @@ router.put('/updateUser', jwtCheck, userRateLimit, (req, res) => userService.upd
 router.post('/addFriend/:username', jwtCheck, userRateLimit, (req, res) => userService.addFriend(req, res));
 router.get('/getUser/:username', jwtCheck, userRateLimit, (req, res) => userService.getUser(req, res));
 router.get('/getNotifications', jwtCheck, userRateLimit, (req, res) => userService.getNotifications(req, res));
+
+
+router.get('/whoami', jwtCheck, userRateLimit, (req, res) => res.json(req.userData))
 
 // Apply sendMessageRateLimit middleware to these routes
 // router.post('/sendMessage/:username', jwtCheck, sendMessageRateLimit, (req, res) => userService.sendMessage(req, res));

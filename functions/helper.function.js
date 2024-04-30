@@ -1,5 +1,9 @@
 const emoji = require('node-emoji');
 
+
+require('dotenv').config();
+const MESSAGE = require('../textDB/messages.text')[process.env.LANGUAGE];
+
 function deepClone(obj) {
 	if (obj === null || typeof obj !== 'object') {
 		return obj;
@@ -112,7 +116,7 @@ var helper = class helper {
 	 * helper.hasPermission('User'); // false
 	 *
 	*/
-	hasPermission = role => { return role === "Administrator" || role === "Moderator" }
+	hasPermission = role => { return role === MESSAGE.administratorRole || role === MESSAGE.moderatorRole }
 
 
 	// Function to convert emojis in comment content
@@ -128,7 +132,6 @@ var helper = class helper {
 	 *
 	*/
 	convertEmojis = (data, type) => {
-		console.log(data);
 		let emojiObject = {}; // Define the emojiObject outside of the map function
 		switch (type) {
 			case 'comment':
@@ -148,13 +151,11 @@ var helper = class helper {
 						emojiObject[content] = emojiObject[content] ? emojiObject[content] + 1 : 1;
 					}
 	
-					console.log(updatedComment);
-	
 					return updatedComment;
 				});
 				// Attach the emojiObject to the main array only if the type is 'comment'
 				updatedData.push({ totalEmojis: emojiObject }); // Add emoji object at the end of the array
-				console.log(updatedData); // Log the updatedData for debugging
+				console.log(emojiObject); // Log the updatedData for debugging
 				return updatedData;
 			case 'article':
 				return data.map(article => {

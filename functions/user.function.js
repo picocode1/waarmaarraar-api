@@ -7,6 +7,11 @@ const Notification = require('../models/notification.model')
 const Post = require('../routes/forum/models/post.model')
 const Connection = require('../models/connections.model')
 
+require('dotenv').config();
+const MESSAGE = require('../textDB/messages.text')[process.env.LANGUAGE];
+
+
+
 const getUsername = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
 
 class userInfo {
@@ -45,7 +50,7 @@ class userInfo {
 			}
 	
 			if (!userData) {
-				return { message: "User not found", success: false };
+				return { message: MESSAGE.userNotFound, success: false };
 			}
 	
 			const connectionData = await Connection.findOne({ user: userData._id })
@@ -71,7 +76,7 @@ class userInfo {
 
 			return data;
 		} catch (error) {
-			throw new Error(`Failed to get user info: ${error.message}`);
+			throw new Error(MESSAGE.failedToGetUserInfo(error.message));
 		}
 	}
 
@@ -88,19 +93,19 @@ class userInfo {
 			const role = await Role.findOne({ name: roleName });
 
 			if (!role) {
-				throw new Error("Role not found");
+				throw new Error(MESSAGE.roleNotFound);
 			}
 
 			// Find the user document by username
 			const user = await User.findOne(getUsername(username)).populate('role')
 
-			if (user.role.name != "Administrator") {
-				return "User is not an administrator"
+			if (user.role.name != MESSAGE.administratorRole) {
+				return MESSAGE.userNotAdministrator
 			}
 
 
 			if (!user) {
-				return "User not found"
+				return MESSAGE.userNotFound;
 			}
 
 			// Update the user's role with the role ID
@@ -109,7 +114,7 @@ class userInfo {
 
 			return user; // Optionally return the updated user document
 		} catch (error) {
-			throw new Error(`Failed to update user rank: ${error.message}`);
+			throw new Error(MESSAGE.failedToUpdateUserRank(error.message));
 		}
 	}
 
@@ -131,12 +136,12 @@ class userInfo {
 			);
 
 			if (!updatedUser) {
-				throw new Error("User not found");
+				throw new Error(MESSAGE.userNotFound);
 			}
 
 			return updatedUser;
 		} catch (error) {
-			throw new Error(`Failed to increment field: ${error.message}`);
+			throw new Error(MESSAGE.failedToIncrementField);
 		}
 	}
 
@@ -152,7 +157,7 @@ class userInfo {
 			return updatedUser;
 		}
 		catch (error) {
-			throw new Error(`Failed to update last forum post: ${error.message}`);
+			throw new Error(MESSAGE.failedToUpdateLastForumPost(error.message));
 		}
 	}
 
@@ -169,7 +174,7 @@ class userInfo {
 			const comments = await Comments.find({ user: userId }).populate('post_id', '-user')
 			return comments;
 		} catch (error) {
-			throw new Error(`Failed to get comments by user: ${error.message}`);
+			throw new Error(MESSAGE.failedToGetCommentsByUser(error.message));
 		}
 	}
 
@@ -189,7 +194,7 @@ class userInfo {
 			const posts = await Post.find({ user: userId });
 			return posts;
 		} catch (error) {
-			throw new Error(`Failed to get posts by user: ${error.message}`);
+			throw new Error(MESSAGE.failedToGetPostsByUser(error.message));
 		}
 	}
 
@@ -199,13 +204,13 @@ class userInfo {
 			// Find the user by ID
 			const user = await User.findById(userId);
 			if (!user) {
-				throw new Error("User not found");
+				throw new Error(MESSAGE.userNotFound);
 			}
 	
 			// Find the user's connections
 			const connections = await Connection.findOne({ user: userId });
 			if (!connections) {
-				throw new Error("User's connections not found");
+				throw new Error(MESSAGE.usersConnectionsNotFound);
 			}
 	
 			// Get the IDs of the users that the current user follows
@@ -224,7 +229,7 @@ class userInfo {
 			
 			return posts;
 		} catch (error) {
-			throw new Error(`Failed to get friends' posts: ${error.message}`);
+			throw new Error(MESSAGE.failedToGetFriendsPosts(error.message));
 		}
 	}
 
@@ -242,7 +247,7 @@ class userInfo {
 			
 			return comments;
 		} catch (error) {
-			throw new Error(`Failed to get comments by post: ${error.message}`);
+			throw new Error(MESSAGE.failedToGetCommentsByPost(error.message));;
 		}
 	}
 
@@ -292,7 +297,7 @@ class userInfo {
 			const user = await User.findOne(getUsername(username)).populate('role');
 			return user.role.name;
 		} catch (error) {
-			throw new Error(`Failed to get user role: ${error.message}`);
+			throw new Error(MESSAGE.failedToGetUserRole(error.message));
 		}
 	}
 	
@@ -313,7 +318,7 @@ class userInfo {
 			const deletedUser = await User.findOneAndDelete({ username });
 			return deletedUser;
 		} catch (error) {
-			throw new Error(`Failed to delete user: ${error.message}`);
+			throw new Error(MESSAGE.failedToDeleteUser(error.message));
 		}
 	}
 
@@ -331,7 +336,7 @@ class userInfo {
 			// Find user by id
 			const user = await User.findById(to_id);
 			if (!user) {
-				throw new Error("User not found");
+				throw new Error(MESSAGE.userNotFound);
 			}
 
 			// Create a new notification document
@@ -348,7 +353,7 @@ class userInfo {
 
 			return newNotification;
 		} catch (error) {
-			throw new Error(`Failed to create notification: ${error.message}`);
+			throw new Error(MESSAGE.failedToCreateNotification(error.message));
 		}
 	};
 
@@ -369,7 +374,7 @@ class userInfo {
 			// Find the user by username to get their ObjectId
 			const user = await User.findById(id);
 			if (!user) {
-				throw new Error("User not found");
+				throw new Error(MESSAGE.userNotFound);
 			}
 	
 			// Find notifications for the user
@@ -377,7 +382,7 @@ class userInfo {
 	
 			return notifications;
 		} catch (error) {
-			throw new Error(`Failed to get notifications: ${error.message}`);
+			throw new Error(MESSAGE.failedToGetNotifications(error.message));
 		}
 	};
 
@@ -404,7 +409,7 @@ class userInfo {
 			console.log(articles);
             return articles;
         } catch (error) {
-            throw new Error(`Failed to get articles: ${error.message}`);
+			throw new Error(MESSAGE.failedToGetArticles(error.message));
         }
     }
 
@@ -416,7 +421,7 @@ class userInfo {
 			// Find the user by username
 			const user = await User.findOne(getUsername(authedUser));
 			if (!user) {
-				throw new Error("User not found");
+				throw new Error(MESSAGE.userNotFound);
 			}
 
 			// Cap the number of tags at 10
@@ -447,7 +452,7 @@ class userInfo {
 	
 			return user;
 		} catch (error) {
-			throw new Error(`Failed to update user: ${error.message}`);
+			throw new Error(MESSAGE.failedToUpdateUser(error.message));
 		}
 	}
 

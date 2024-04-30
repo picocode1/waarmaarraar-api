@@ -1,17 +1,22 @@
 const jwt = require('jsonwebtoken');
 
+
+require('dotenv').config();
+const MESSAGE = require('../textDB/messages.text')[process.env.LANGUAGE];
+
+
 module.exports = (req, res, next) => {
     try {
 		const authHeader = req.headers['authorization'];
 		
 		if (!authHeader) {
-			return res.status(401).json({ message: 'Missing auth header', success: false });
+			return res.status(401).json({ message: MESSAGE.missingAuthHeader, success: false });
 		}
 
 		const token = authHeader.split('Bearer ')[1]; // Extract the token from the Authorization header
 
 		if (!token) {
-		  return res.status(401).json({ message: 'No token provided', success: false });
+		  return res.status(401).json({ message: MESSAGE.noTokenProvided, success: false });
 		}
 
 
@@ -34,7 +39,7 @@ module.exports = (req, res, next) => {
     
     } catch (error) {
 		if (error.message == 'jwt must be provided') {
-			console.log('Missing JWT token.')
+			console.log(MESSAGE.missingJWTToken)
 		} else console.error(error);
 		
 	

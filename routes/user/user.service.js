@@ -7,6 +7,10 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 
+require('dotenv').config();
+const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
+
+
 const ObjectId = require('mongoose').Types.ObjectId;
 
 const helper = new (require('../../functions/helper.function.js'));
@@ -20,7 +24,7 @@ const loginUser = async (req, res, next) => {
 		if (!username || !password) {
 			return res.status(200).json({
 				success: false,
-				message: 'Missing required fields'
+				message: MESSAGE.missingRequiredFields
 			});
 		}
 	
@@ -28,14 +32,14 @@ const loginUser = async (req, res, next) => {
         const user = await User.findOne(helper.getUsername(username));
         if (!user) {
 			console.log(user);
-            return res.status(404).json({ message: 'User not found', success: false });
+            return res.status(404).json({ message: MESSAGE.userNotFound, success: false });
         }
 
         // Compare passwords
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
 			console.log(match);
-            return res.status(401).json({ message: 'Invalid credentials', success: false });
+            return res.status(401).json({ message: MESSAGE.invalidCredentials, success: false });
         }
 
         // Generate JWT token
@@ -47,7 +51,7 @@ const loginUser = async (req, res, next) => {
 		
 		// Set the cookie en send json token back
 		// res.cookie('JWT_TOKEN', token, { httpOnly: true });
-		res.status(200).json({ _id: user._id, message: "You have been logged in successfully", jwt: token, success: true });
+		res.status(200).json({ _id: user._id, message: MESSAGE.loggedInSuccessfully(user.username), jwt: token, success: true });
     } catch (error) {
         res.status(500).json({ message: error.message, success: false });
     }
@@ -61,7 +65,7 @@ const registerUser = async (req, res, next) => {
     if (!username || !password) {
 		return res.status(200).json({
 			success: false,
-			message: 'Missing required fields'
+			message: MESSAGE.missingRequiredFields
 		});
     }
 
@@ -70,13 +74,13 @@ const registerUser = async (req, res, next) => {
 	if (usernameExists) {
 		return res.status(200).json({
 			success: false,
-			message: 'Username already exists'
+			message: MESSAGE.usernameAlreadyExists
 		});
 	}
     if (username.length < 3) {
         return res.status(200).json({
             success: false,
-            message: 'username must be atleast 3 characters'
+            message: MESSAGE.usernameMustBeAtLeastThreeCharacters
         });
     }
 
@@ -90,7 +94,7 @@ const registerUser = async (req, res, next) => {
 		signup_date: new Date(),
 
 		// Be able to changed later
-		profile_picture: '/images/default.jpg',
+		profile_picture: MESSAGE.defaultProfilePicture,
 		name: '',
 		role: global.roles["User"], // Using the _id of the default role document
 		residence: '',
@@ -110,7 +114,7 @@ const registerUser = async (req, res, next) => {
 
     return res.status(200).json({
         success: true,
-        message: 'User created successfully',
+        message: MESSAGE.userCreatedSuccessfully,
     });
 
 	// id: { type: mongoose.Schema.Types.ObjectId },
@@ -149,7 +153,7 @@ const updateUser = async (req, res, next) => {
 
 		const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags);
 
-		return res.status(200).json({ message: "User updated successfully", success: true });
+		return res.status(200).json({ message: MESSAGE.userUpdatedSuccessfully, success: true });
 	} catch (error) {
 		// Return error response
 		return res.status(500).json({ message: error.message, success: false  });
@@ -165,12 +169,12 @@ const addFriend = async (req, res, next) => {
 		let username = req.params.username
 
 		if (username == req.userData.username) {
-			return res.status(500).json({ message: "You cannot add yourself", success: false })
+			return res.status(500).json({ message: MESSAGE.cannotAddYourself, success: false })
 		}
 
         const updatedUser = await userInfo.addFriend(username);
 
-        return res.status(200).json({ message: "Friend added successfully", success: false   });
+        return res.status(200).json({ message: MESSAGE.friendAddedSuccessfully, success: false   });
     } catch (error) {
         // Return error response
         return res.status(500).json({ message: error.message, success: false  });
@@ -191,7 +195,7 @@ const sendMessage = async (req, res, next) => {
         // Return the created notification in the response
         return res.status(200).json({
             success: true,
-            message: 'Notification created successfully',
+            message: MESSAGE.notificationCreatedSuccessfully,
             notification: newNotification
         });
     } catch (error) {

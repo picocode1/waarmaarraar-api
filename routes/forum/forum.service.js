@@ -11,11 +11,12 @@ const Role = require('../../models/roles.model.js');
 const userInfo = new (require('../../functions/user.function.js'));
 const helper = new (require('../../functions/helper.function.js'));
 
-const Message = require('../../models/message.model.js');
+const Messages = require('../../models/message.model.js');
 
 const Connection = require('../../models/connections.model.js')
 
-
+require('dotenv').config();
+const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
 
 
 const createPost = async (req, res) => {
@@ -28,11 +29,11 @@ const createPost = async (req, res) => {
         const { title, content, category, meta_tags, image, article } = req.body;
         
 		if (!content) {
-			res.status(400).json({ message: "Missing content", success: false});
+			res.status(400).json({ message: MESSAGE.missingContent, success: false});
 			return;
 		}
 		if (!title) {
-			res.status(400).json({ message: "Missing title", success: false});
+			res.status(400).json({ message: MESSAGE.missingTitle, success: false});
 			return;
 		}
 
@@ -66,7 +67,7 @@ const createPost = async (req, res) => {
 		userInfo.updateLastPost(UD.username);
 
         // Respond with success message
-        res.status(200).json({ message: 'Post created successfully', 
+        res.status(200).json({ message: MESSAGE.postCreatedSuccessfully, 
 			// Remove later, only for testing
 			post: savedPost,
 			success: true
@@ -87,12 +88,12 @@ const addComment = async (req, res) => {
         const { content, post_id } = req.body;
         
 		if (!content) {
-			res.status(400).json({ message: "Missing content", success: false});
+			res.status(400).json({ message: MESSAGE.missingContent, success: false});
 			return;
 		}
 
 		if (!post_id) {
-			res.status(400).json({ message: "Missing post id", success: false});
+			res.status(400).json({ message: MESSAGE.missingPostId, success: false});
 			return;
 		}
 
@@ -112,7 +113,7 @@ const addComment = async (req, res) => {
         const savedComment = await newComment.save();
 
         // Respond with success message
-        res.status(200).json({ message: 'Comment created successfully', 
+        res.status(200).json({ message: MESSAGE.commentCreatedSuccessfully, 
 			// Remove later, only for testing
 			post: savedComment, 
 			success: true
@@ -124,11 +125,9 @@ const addComment = async (req, res) => {
 
 
 const createArticle = async (req, res) => {
-	res.status(400).json({ message: "Not used anymore", success: false});
+	res.status(400).json({ message: MESSAGE.notUsedAnymore, success: false});
 	return
 	try {
-
-		
 
 		// If authentication succeeds, continue with createArticle logic
         const UD = req.userData; // Assuming req.user is properly set in middleware
@@ -208,12 +207,12 @@ const addReaction = async (req, res) => {
         const { reaction, post_id } = req.body;
         
 		if (!reaction) {
-			res.status(400).json({ message: "Missing reaction", success: false});
+			res.status(400).json({ message: MESSAGE.missingReaction, success: false});
 			return;
 		}
 
 		if (!post_id) {
-			res.status(400).json({ message: "Missing post id", success: false});
+			res.status(400).json({ message: MESSAGE.missingPostId, success: false});
 			return;
 		}
 
@@ -233,7 +232,7 @@ const addReaction = async (req, res) => {
         const savedReaction = await newReaction.save();
 
         // Respond with success message
-        res.status(200).json({ message: 'Reaction added successfully', 
+        res.status(200).json({ message: MESSAGE.reactionAddedSuccessfully, 
 			// Remove later, only for testing
 			post: savedReaction, 
 			success: true 
@@ -315,7 +314,7 @@ const getArticles = async (req, res) => {
 
         res.status(200).json(articlesWithEmojis);
     } catch (error) {
-        res.status(500).json({ error: `Failed to get articles: ${error.message}`, success: false});
+        res.status(500).json({ error: MESSAGE.failedToGetArticles(error.message), success: false});
     }
 };
 
@@ -328,16 +327,16 @@ const sendMessage = async (req, res) => {
 
         // Check if sender and receiver are the same
         if (sender === receiver) {
-            return res.status(400).json({ message: 'Cannot send message to yourself' });
+            return res.status(400).json({ message: MESSAGE.cannotSendMessageToYourself, success: false});
         }
 
-        const newMessage = new Message({ sender, receiver, message });
+        const newMessage = new Messages({ sender, receiver, message });
         await newMessage.save();
 
 		// Send a notification to the receiver
-		userInfo.sendNotification(receiver, `New message from ${senderName}`, 'You have received a new message', sender);
+		userInfo.sendNotification(receiver, MESSAGE.messageFrom(senderName), MESSAGE.receivedMessage, sender);
 
-        res.status(201).json({ message: 'Message sent successfully', success: true });
+        res.status(201).json({ message: MESSAGE.messageSentSuccessfully, success: true });
     } catch (error) {
         res.status(500).json({ message: error.message, success: false});
     }
@@ -356,22 +355,22 @@ const getConversation = async (req, res) => {
 
         // Check if the provided amounts are valid numbers
         if (isNaN(amount) || isNaN(amount2)) {
-           return res.status(400).json({ message: "Amounts must be valid numbers", success: false });
+           return res.status(400).json({ message: MESSAGE.amountsMustBeValidNumbers, success: false });
         }
 
         // Ensure amount and amount2 are positive integers
         if (amount < 0 || amount2 < 0) {
-           return res.status(400).json({ message: "Amounts must be non-negative integers", success: false });
+           return res.status(400).json({ message: MESSAGE.amountsMustBeNonNegativeIntegers, success: false });
         }
 
         // Ensure amount2 is greater than or equal to amount
         if (amount2 < amount) {
-           return res.status(400).json({ message: "End amount must be greater than start amount", success: false });
+           return res.status(400).json({ message: MESSAGE.endAmountMustBeGreaterThanStartAmount, success: false });
         }
 
 		// Check if values are not the same\
 		if (amount === amount2) {
-			return res.status(400).json({ message: "Amounts must be different", success: false });
+			return res.status(400).json({ message: MESSAGE.amountsMustBeDifferent, success: false });
 		}
 
         // Query to find messages between userId1 and userId2
@@ -383,7 +382,7 @@ const getConversation = async (req, res) => {
         };
 
         // Find messages between the users
-        const findMessages = await Message.find(query)
+        const findMessages = await Messages.find(query)
             .sort({ timestamp: -1 }) // Sort in descending order to get the latest messages first
             .skip(amount) // Skip the first 'amount' messages
             .limit(amount2 - amount) // Limit the number of messages based on the range
@@ -412,7 +411,7 @@ const getChatContacts = async (req, res) => {
         const userId = req.userData._id;
 
         // Find all unique sender and receiver IDs where the authenticated user is involved
-        const messages = await Message.find({
+        const messages = await Messages.find({
             $or: [{ sender: userId }, { receiver: userId }]
         });
 
@@ -467,7 +466,7 @@ const addFollowing = async (req, res) => {
         const updatedUser = await userInfo.addFollowing(username, followingUsername);
 		
         
-        return res.status(200).json({ message: `You are now following ${username}`, success: true });
+        return res.status(200).json({ message: MESSAGE.youAreNowFollowing(username), success: true });
     } catch (error) {
         return res.status(500).json({ message: error.message, success: false });
     }

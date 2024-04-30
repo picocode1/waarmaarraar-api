@@ -19,6 +19,9 @@ const { createLogger, format, transports } = winston;
 const { combine, label, printf } = format;
 const DailyRotateFile = require('winston-daily-rotate-file');
 
+
+const MESSAGE = require('./textDB/messages.text')[process.env.LANGUAGE];
+
 // Global object to store role IDs by role name
 
 // userInfo.updateUserRank("rik", "Administrator")
@@ -138,6 +141,7 @@ fs.readdirSync('./routes').forEach(file => {
 });
 
 
+
 app.get("/api", (req, res) => {
     const sortedRoutes = [...urls].sort((a, b) => {
         // Extract path prefixes
@@ -167,10 +171,10 @@ const SSL = {
 
 const server = https.createServer(SSL, app);
 
-server.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
+server.listen(process.env.PORT, () => console.log(MESSAGE.serverRunningPort(process.env.PORT)));
 
 mongoose.connect(process.env.MONGO_URL);
-mongoose.connection.on('connected', () => console.log('Server is connected to the database.'));
+mongoose.connection.on('connected', () => console.log(MESSAGE.serverConnected));
 
 var urls = new Set()
 
@@ -205,5 +209,5 @@ urls.forEach(url => {
 
 // Error handler
 app.get("*", (req, res, next) => {
-	res.status(212).json({ message: "URL not found", success: false  });
+	res.status(212).json({ message: MESSAGE.URLNotFound, success: false  });
 });
