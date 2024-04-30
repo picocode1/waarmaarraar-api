@@ -1,6 +1,13 @@
 // messages.js
 
 const MESSAGE = {
+	
+	// General messages
+	administratorRole: 'Administrator',
+	moderatorRole: 'Moderator',
+	userRole: 'User',
+	functionNotAllowed: 'Function not allowed',
+	
 	// English messages
 	en: {
 		// General messages
@@ -152,6 +159,81 @@ const MESSAGE = {
 		friendAddedSuccessfully: 'Vriend succesvol toegevoegd',
 		notificationCreatedSuccessfully: 'Notificatie succesvol aangemaakt',
 	},
+
+	de: {
+		  // General messages
+		  administratorRole: 'Administrator',
+		  moderatorRole: 'Moderator',
+		  userRole: 'User',
+		  serverConnected: 'Server ist mit der Datenbank verbunden.',
+		  serverRunningPort: port => `Server läuft auf Port ${port}`,
+		  URLNotFound: 'URL nicht gefunden',
+		
+		  // user.function.js
+		  failedToGetUserInfo: errorMessage => `Fehler beim Abrufen von Benutzerinformationen: ${errorMessage}`,
+		  userNotFound: 'Benutzer nicht gefunden',
+		  roleNotFound: 'Rolle nicht gefunden',
+		  userNotAdministrator: 'Benutzer ist kein Administrator',
+		  failedToUpdateUserRank: 'Fehler beim Aktualisieren des Benutzerrangs',
+		  failedToIncrementField: 'Fehler beim Inkrementieren des Felds',
+		  failedToUpdateLastForumPost: error => `Fehler beim Aktualisieren des letzten Forenbeitrags: ${error.message}`,
+		  failedToGetCommentsByUser: error => `Fehler beim Abrufen von Kommentaren des Benutzers: ${error.message}`,
+		  failedToGetPostsByUser: error => `Fehler beim Abrufen von Beiträgen des Benutzers: ${error.message}`,
+		  usersConnectionsNotFound: "Verbindungen des Benutzers nicht gefunden",
+		  failedToGetFriendsPosts: error => `Fehler beim Abrufen von Beiträgen von Freunden: ${error.message}`,
+		  failedToGetCommentsByPost: error => `Fehler beim Abrufen von Kommentaren des Beitrags: ${error.message}`,
+		  failedToGetUserRole: error => `Fehler beim Abrufen der Benutzerrolle: ${error.message}`,
+		  failedToDeleteUser: error => `Fehler beim Löschen des Benutzers: ${error.message}`,
+		  failedToCreateNotification: error => `Fehler beim Erstellen der Benachrichtigung: ${error.message}`,
+		  failedToGetNotifications: error => `Fehler beim Abrufen von Benachrichtigungen: ${error.message}`,
+		  failedToGetArticles: error => `Fehler beim Abrufen von Artikeln: ${error.message}`,
+		  failedToUpdateUser: error => `Fehler beim Aktualisieren des Benutzers: ${error.message}`,
+		
+		  // jwt.middleware.js
+		  missingAuthHeader: 'Fehlender Authentifizierungsheader',
+		  noTokenProvided: 'Kein Token bereitgestellt',
+		  missingJWTToken: 'JWT-Token fehlt',
+		
+		  // forum.controller.js
+		  tooManyRequests: 'Zu viele Anfragen, bitte versuchen Sie es später erneut.',
+		  tooManyRequestsForSendingMessages: 'Zu viele Anfragen zum Senden von Nachrichten, bitte versuchen Sie es später erneut.',
+		
+		  // forum.service.js
+		  missingContent: 'Inhalt fehlt',
+		  missingTitle: 'Titel fehlt',
+		  postCreatedSuccessfully: 'Beitrag erfolgreich erstellt',
+		  missingPostId: 'Beitrags-ID fehlt',
+		  commentCreatedSuccessfully: 'Kommentar erfolgreich erstellt',
+		  notUsedAnymore: 'Nicht mehr verwendet',
+		  missingReaction: 'Reaktion fehlt',
+		  reactionAddedSuccessfully: 'Reaktion erfolgreich hinzugefügt',
+		  failedToGetArticles: error => `Fehler beim Abrufen von Artikeln: ${error.message}`,
+		  cannotSendMessageToYourself: 'Nachricht kann nicht an sich selbst gesendet werden',
+		  messageFrom: senderName => `Neue Nachricht von ${senderName}`,
+		  receivedMessage: 'Sie haben eine neue Nachricht erhalten',
+		  messageSentSuccessfully: 'Nachricht erfolgreich gesendet',
+		  amountsMustBeValidNumbers: 'Betrag muss eine gültige Zahl sein',
+		  amountsMustBeNonNegativeIntegers: 'Betrag muss eine nicht-negative Ganzzahl sein',
+		  endAmountMustBeGreaterThanStartAmount: 'Endbetrag muss größer als Startbetrag sein',
+		  amountsMustBeDifferent: 'Betrag muss unterschiedlich sein',
+		  youAreNowFollowing: username => `Sie folgen jetzt ${username}`,
+		
+		  // user.controller.js
+		  tooManyRequestsForLoginOrRegister: 'Zu viele Anfragen zum Anmelden oder Registrieren, bitte versuchen Sie es später erneut.',
+		
+		  // user.service.js
+		  missingRequiredFields: 'Erforderliche Felder fehlen',
+		  invalidCredentials: 'Ungültige Anmeldeinformationen',
+		  loggedInSuccessfully: username => `Sie haben sich erfolgreich angemeldet als ${username}`,
+		  usernameAlreadyExists: 'Benutzername existiert bereits',
+		  usernameMustBeAtLeastThreeCharacters: 'Benutzername muss mindestens 3 Zeichen lang sein',
+		  defaultProfilePicture: '/images/default.jpg',
+		  userCreatedSuccessfully: 'Benutzer erfolgreich erstellt',
+		  userUpdatedSuccessfully: 'Benutzer erfolgreich aktualisiert',
+		  cannotAddYourself: 'Sie können sich nicht selbst hinzufügen',
+		  friendAddedSuccessfully: 'Freund erfolgreich hinzugefügt',
+		  notificationCreatedSuccessfully: 'Benachrichtigung erfolgreich erstellt',
+	}
 };
 
 module.exports = MESSAGE;

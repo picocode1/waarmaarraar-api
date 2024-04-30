@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
+const _textDB = require('../../textDB/messages.text')
 
 
 const ObjectId = require('mongoose').Types.ObjectId;
@@ -243,5 +244,32 @@ const getUser = async (req, res, next) => {
 	}
 }
 
+const textDB = async (req, res, next) => {
+    let property = req.params.property;
 
-module.exports = { loginUser, registerUser, getUser, logoutUser, addFriend, sendMessage, getNotifications, updateUser };
+    if (property) {
+        // Loop through all the objects like en and nl and de but we don't know how many there are
+        let languages = Object.keys(_textDB);
+        let text = {};
+
+        for (let i = 0; i < languages.length; i++) {
+            let lang = languages[i];
+
+            // Check if the property is a function
+            if (typeof _textDB[lang][property] == "function") {
+				res.status(500).json({ message: _textDB.functionNotAllowed, success: false });
+                return
+            }
+
+            text[lang] = _textDB[lang][property];
+        }
+
+        text.success = true;
+        res.json(text);
+    } else {
+        res.json(_textDB);
+    }
+}
+
+
+module.exports = { loginUser, registerUser, getUser, logoutUser, addFriend, sendMessage, getNotifications, updateUser, textDB };

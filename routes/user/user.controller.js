@@ -7,6 +7,8 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
 
+const textDB = require('../../textDB/messages.text')
+
 
 // eduarte gewerkt aan messages text veld en emoji codeb
 
@@ -60,6 +62,11 @@ router.get('/getNotifications', jwtCheck, userRateLimit, (req, res) => userServi
 
 
 router.get('/whoami', jwtCheck, userRateLimit, (req, res) => res.json(req.userData))
+
+router.get('/textDB/:property?', jwtCheck, userRateLimit, (req, res) => userService.textDB(req, res));
+
+
+
 
 // Apply sendMessageRateLimit middleware to these routes
 // router.post('/sendMessage/:username', jwtCheck, sendMessageRateLimit, (req, res) => userService.sendMessage(req, res));

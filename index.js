@@ -22,6 +22,7 @@ const DailyRotateFile = require('winston-daily-rotate-file');
 
 const MESSAGE = require('./textDB/messages.text')[process.env.LANGUAGE];
 
+
 // Global object to store role IDs by role name
 
 // userInfo.updateUserRank("rik", "Administrator")
@@ -37,7 +38,7 @@ const MESSAGE = require('./textDB/messages.text')[process.env.LANGUAGE];
 // })
 		
 		
-		global.roles = {};
+global.roles = {};
 // Function to populate the global roles object with role IDs
 async function populateRolesObject() {
     try {
@@ -105,6 +106,7 @@ const logger = createLogger({
         })
     ]
 });
+
 
 // Middleware to log requests
 app.use((req, res, next) => {
