@@ -9,7 +9,9 @@ const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
-const _textDB = require('../../textDB/messages.text')
+const _textDB = require('../../textDB/messages.text');
+const { all } = require('./user.controller.js');
+const { find } = require('../../models/connections.model.js');
 
 
 const ObjectId = require('mongoose').Types.ObjectId;
@@ -146,13 +148,38 @@ const logoutUser = async (req, res, next) => {
 	res.clearCookie(process.env.JWT_NAME)
 }
 
+
+
+
+//TODO: 
+// Test image upload and correct path to save image
+// make sure to make a PUT request to update user info
+
 const updateUser = async (req, res, next) => {
+	let allowedTypes = ['image/jpeg', 'image/png', 'image/jpg']
+
 	try {
 		const authedUser = req.userData
+		const { image } = req.files;
+
+		// Not tested
+		if (allowedTypes.includes(image.mimetype) == false) {
+			return res.status(500).json({ message: MESSAGE.invalidImageType, success: false });
+		}
+
+		// if (!/^image/.test(image.mimetype)) return res.status(500).json({ message: MESSAGE.invalidImageType, success: false });
+
+		// should be like "661f9b533fb2c0bcd0366685.png"
+		const profile_picture = `${authedUser._id}.${image.name.split('.').pop()}`
+		
+		console.log(profile_picture);
+
+		image.mv('public/images/' + profile_picture);
+		
 
 		const { name, residence, birthday, profession, tags } = req.body;
 
-		const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags);
+		const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags, profile_picture);
 
 		return res.status(200).json({ message: MESSAGE.userUpdatedSuccessfully, success: true });
 	} catch (error) {

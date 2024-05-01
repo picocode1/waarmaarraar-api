@@ -22,6 +22,11 @@ const DailyRotateFile = require('winston-daily-rotate-file');
 
 const MESSAGE = require('./textDB/messages.text')[process.env.LANGUAGE];
 
+const fileUpload = require('express-fileupload');
+
+// Use the express-fileupload middleware
+app.use(fileUpload());
+
 
 // Global object to store role IDs by role name
 

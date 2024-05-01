@@ -82,6 +82,7 @@ const MESSAGE = {
 		cannotAddYourself: 'You cannot add yourself',
 		friendAddedSuccessfully: 'Friend added successfully',
 		notificationCreatedSuccessfully: 'Notification created successfully',
+		invalidImageType: 'Invalid image type',
 	},
 
 	// Dutch messages
@@ -158,6 +159,7 @@ const MESSAGE = {
 		cannotAddYourself: 'Je kunt jezelf niet toevoegen',
 		friendAddedSuccessfully: 'Vriend succesvol toegevoegd',
 		notificationCreatedSuccessfully: 'Notificatie succesvol aangemaakt',
+		invalidImageType: 'Ongeldig afbeeldingstype',
 	},
 
 	de: {
@@ -233,6 +235,7 @@ const MESSAGE = {
 		  cannotAddYourself: 'Sie können sich nicht selbst hinzufügen',
 		  friendAddedSuccessfully: 'Freund erfolgreich hinzugefügt',
 		  notificationCreatedSuccessfully: 'Benachrichtigung erfolgreich erstellt',
+		  invalidImageType: 'Ungültiger Bildtyp',
 	}
 };
 
