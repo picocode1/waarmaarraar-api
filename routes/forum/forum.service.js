@@ -60,8 +60,14 @@ const createPost = async (req, res) => {
         // Save the post to the database
         const savedPost = await newPost.save();
 
-		// Increment the forum_posts_count field in the user document
-		userInfo.incrementField(UD.username, "forum_posts_count", 1);
+		if (isArticle) {
+			// Increment the article_count field in the user document
+			userInfo.incrementField(UD.username, "articles_count", 1);
+		} else {
+			userInfo.incrementField(UD.username, "forum_posts_count", 1);
+		}
+
+		
 		
 		// lastForumPost
 		userInfo.updateLastPost(UD.username);
@@ -73,7 +79,7 @@ const createPost = async (req, res) => {
 			success: true
 		});
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false  });
+        res.status(500).json({ message: MESSAGE.couldNotCreatePost(error), success: false  });
     }
 };
 
@@ -112,6 +118,9 @@ const addComment = async (req, res) => {
         // Save the comment to the database
         const savedComment = await newComment.save();
 
+		userInfo.incrementField(UD.username, "comments_count", 1);
+
+
         // Respond with success message
         res.status(200).json({ message: MESSAGE.commentCreatedSuccessfully, 
 			// Remove later, only for testing
@@ -119,7 +128,7 @@ const addComment = async (req, res) => {
 			success: true
 		});
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false });
+        res.status(500).json({ message: MESSAGE.couldNotAddComment(error), success: false });
     }
 };
 
@@ -198,6 +207,8 @@ const createArticle = async (req, res) => {
 
 
 const addReaction = async (req, res) => {
+	res.status(400).json({ message: MESSAGE.notUsedAnymore, success: false});
+	return
 	try {
 		// If authentication succeeds, continue with addComment logic
         const UD = req.userData; // Assuming req.user is properly set in middleware
@@ -238,7 +249,7 @@ const addReaction = async (req, res) => {
 			success: true 
 		});
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false  });
+        res.status(500).json({ message: MESSAGE.couldnotAddReaction(error), success: false  });
     }
 }
 
@@ -256,7 +267,7 @@ const getCommentsByPost = async (req, res) => {
 
 		res.status(200).json({ data: commentsWithEmojis, success: true });
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false  });
+        res.status(500).json({ message: MESSAGE.couldNotGetCommentsByPost(error), success: false  });
     }
 };
 
@@ -272,7 +283,7 @@ const getCommentsByUser = async (req, res) => {
 
 		res.status(200).json({ data: commentsWithEmojis, success: true });
     } catch (error) {
-		res.status(500).json({ message: error.message, success: false  });
+		res.status(500).json({ message: MESSAGE.couldNotGetCommentsByUser(error), success: false  });
     }
 };
 
@@ -288,7 +299,7 @@ const getPostById = async (req, res) => {
 
 		res.status(200).json({ data: postWithEmojis, success: true });
 	} catch (error) {
-		res.status(500).json({ message: error.message, success: false });
+		res.status(500).json({ message: MESSAGE.administratorRole(error), success: false });
 	}
 };
 
@@ -301,7 +312,7 @@ const getFollowingPosts = async (req, res) => {
 		const posts = await userInfo.getFollowingPosts(UD._id ,amount);
 		res.status(200).json({ data: posts, success: true });
 	} catch (error) {
-		res.status(500).json({ message: error.message, success: false });
+		res.status(500).json({ message: MESSAGE.couldNotGetFollowingPosts(error), success: false });
 	}	
 };
 
@@ -338,7 +349,7 @@ const sendMessage = async (req, res) => {
 
         res.status(201).json({ message: MESSAGE.messageSentSuccessfully, success: true });
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false});
+        res.status(500).json({ message: MESSAGE.couldNotSendMessage(error), success: false});
     }
 };
 
@@ -400,7 +411,7 @@ const getConversation = async (req, res) => {
 
         return res.status(200).json({ messages, success: true });
     } catch (error) {
-        return res.status(500).json({ message: error.message, success: false });
+        return res.status(500).json({ message: MESSAGE.couldNotGetConversation(error), success: false });
     }
 };
 
@@ -432,7 +443,7 @@ const getChatContacts = async (req, res) => {
 
         res.status(200).json({ data: contacts, success: true});
     } catch (error) {
-        res.status(500).json({ message: error.message, success: false});
+        res.status(500).json({ message: MESSAGE.couldNotGetChatContacts(error), success: false});
     }
 };
 
@@ -446,7 +457,7 @@ const readNotification = async (req, res) => {
 
 		return res.status(200).json({ message: MESSAGE.notificationRead, success: true });
 	} catch (error) {
-		return res.status(500).json({ message: error.message, success: false });
+		return res.status(500).json({ message: MESSAGE.couldNotReadNotification(error), success: false });
 	}
 }
 
@@ -466,7 +477,7 @@ const addFollower = async (req, res) => {
             return res.status(400).json({ message: result.message, success: false });
 			}
 		} catch (error) {
-			return res.status(500).json({ message: error.message, success: false });
+			return res.status(500).json({ message: MESSAGE.couldNotAddFollower(error), success: false });
 		}
 	};
 
@@ -482,7 +493,7 @@ const addFollowing = async (req, res) => {
         
         return res.status(200).json({ message: MESSAGE.youAreNowFollowing(username), success: true });
     } catch (error) {
-        return res.status(500).json({ message: error.message, success: false });
+        return res.status(500).json({ message: MESSAGE.couldNotAddFollowing(error), success: false });
     }
 };
 

@@ -1,13 +1,15 @@
 // messages.js
 
+const { error } = require("winston");
+
 const MESSAGE = {
-	
+
 	// General messages
 	administratorRole: 'Administrator',
 	moderatorRole: 'Moderator',
 	userRole: 'User',
 	functionNotAllowed: 'Function not allowed',
-	
+
 	// English messages
 	en: {
 		// General messages
@@ -19,7 +21,7 @@ const MESSAGE = {
 		URLNotFound: 'URL not found',
 
 		// user.function.js
-		failedToGetUserInfo: errorMessage => `Failed to get user info: ${errorMessage}`,
+		failedToGetUserInfo: error => `Failed to get user info: ${error.message}`,
 		userNotFound: 'User not found',
 		roleNotFound: 'Role not found',
 		userNotAdministrator: 'User is not an administrator',
@@ -86,6 +88,30 @@ const MESSAGE = {
 		friendAddedSuccessfully: 'Friend added successfully',
 		notificationCreatedSuccessfully: 'Notification created successfully',
 		invalidImageType: 'Invalid image type',
+		couldNotRegisterUser: error => `Could not register user: ${error.message}`,
+		cantLogin: error => `Can't login: ${error.message}`,
+		couldNotUpdateUser: error => `Could not update user: ${error.message}`,
+		couldNotGetUser: error => `Could not get user: ${error.message}`,
+		couldNotGetTextDB: error => `Could not get textDB: ${error.message}`,
+		couldNotLogoutUser: error => `Could not logout user: ${error.message}`,
+		couldNotSendMessage: error => `Could not send message: ${error.message}`,
+		couldNotGetNotification: error => `Could not get notification: ${error.message}`,
+
+		couldNotCreatePost: error => `Could not create post: ${error.message}`,
+		couldNotAddComment: error => `Could not add comment: ${error.message}`,
+		couldnotAddReaction: error => `Could not add reaction: ${error.message}`,
+
+		couldNotGetCommentsByPost: error => `Could not get comments by post: ${error.message}`,
+		couldNotGetCommentsByUser: error => `Could not get comments by user: ${error.message}`,
+		couldNotGetCommentsById: error => `Could not get comments by id: ${error.message}`,
+		couldNotGetFollowingPosts: error => `Could not get following posts: ${error.message}`,
+		couldNotSendMessage: error => `Could not send message: ${error.message}`,
+		couldNotGetConversation: error => `Could not get conversation: ${error.message}`,
+		couldNotGetChatContacts: error => `Could not get chat contacts: ${error.message}`,
+		couldNotReadNotification: error => `Could not read notification: ${error.message}`,
+		couldNotAddFollower: error => `Could not add follower: ${error.message}`,
+		couldNotAddFollowing: error => `Could not add following: ${error.message}`,
+
 	},
 
 	// Dutch messages
@@ -97,9 +123,9 @@ const MESSAGE = {
 		serverConnected: 'Server is verbonden met de database.',
 		serverRunningPort: port => `Server draait op poort ${port}`,
 		URLNotFound: 'URL niet gevonden',
-		
+
 		// user.function.js
-		failedToGetUserInfo: error => `Het ophalen van gebruikersgegevens is mislukt: ${error}`,
+		failedToGetUserInfo: error => `Het ophalen van gebruikersgegevens is mislukt: ${error.message}`,
 		userNotFound: 'Gebruiker niet gevonden',
 		roleNotFound: 'Rol niet gevonden',
 		userNotAdministrator: 'Gebruiker is geen beheerder',
@@ -166,85 +192,127 @@ const MESSAGE = {
 		friendAddedSuccessfully: 'Vriend succesvol toegevoegd',
 		notificationCreatedSuccessfully: 'Notificatie succesvol aangemaakt',
 		invalidImageType: 'Ongeldig afbeeldingstype',
+		couldNotRegisterUser: error => `Gebruiker kon niet worden geregistreerd: ${error.message}`,
+		cantLogin: error => `Kan niet inloggen: ${error.message}`,
+		couldNotUpdateUser: error => `Gebruiker kon niet worden bijgewerkt: ${error.message}`,
+		couldNotGetUser: error => `Gebruiker kon niet worden opgehaald: ${error.message}`,
+		couldNotGetTextDB: error => `Tekstdatabase kon niet worden opgehaald: ${error.message}`,
+		couldNotLogoutUser: error => `Gebruiker kon niet worden uitgelogd: ${error.message}`,
+		couldNotSendMessage: error => `Bericht kon niet worden verstuurd: ${error.message}`,
+		couldNotGetNotification: error => `Kennisgeving kon niet worden opgehaald: ${error.message}`,
+		couldNotCreatePost: error => `Bericht kon niet worden aangemaakt: ${error.message}`,
+		couldNotAddComment: error => `Reactie kon niet worden toegevoegd: ${error.message}`,
+		couldnotAddReaction: error => `Reactie kon niet worden toegevoegd: ${error.message}`,
+		couldNotGetCommentsByPost: error => `Reacties konden niet worden opgehaald voor bericht: ${error.message}`,
+		couldNotGetCommentsByUser: error => `Reacties konden niet worden opgehaald voor gebruiker: ${error.message}`,
+		couldNotGetCommentsById: error => `Reacties konden niet worden opgehaald voor ID: ${error.message}`,
+		couldNotGetFollowingPosts: error => `Nieuwe berichten van gevolgde personen konden niet worden opgehaald: ${error.message}`,
+		couldNotSendMessage: error => `Bericht kon niet worden verzonden: ${error.message}`,
+		couldNotGetConversation: error => `Gesprek kon niet worden opgehaald: ${error.message}`,
+		couldNotGetChatContacts: error => `Chatcontacten konden niet worden opgehaald: ${error.message}`,
+		couldNotReadNotification: error => `Melding kon niet worden gelezen: ${error.message}`,
+		couldNotAddFollower: error => `Volger kon niet worden toegevoegd: ${error.message}`,
+		couldNotAddFollowing: error => `Volgend kon niet worden toegevoegd: ${error.message}`,
 	},
 
 	de: {
-		  // General messages
-		  administratorRole: 'Administrator',
-		  moderatorRole: 'Moderator',
-		  userRole: 'User',
-		  serverConnected: 'Server ist mit der Datenbank verbunden.',
-		  serverRunningPort: port => `Server läuft auf Port ${port}`,
-		  URLNotFound: 'URL nicht gefunden',
-		
-		  // user.function.js
-		  failedToGetUserInfo: errorMessage => `Fehler beim Abrufen von Benutzerinformationen: ${errorMessage}`,
-		  userNotFound: 'Benutzer nicht gefunden',
-		  roleNotFound: 'Rolle nicht gefunden',
-		  userNotAdministrator: 'Benutzer ist kein Administrator',
-		  failedToUpdateUserRank: 'Fehler beim Aktualisieren des Benutzerrangs',
-		  failedToIncrementField: 'Fehler beim Inkrementieren des Felds',
-		  failedToUpdateLastForumPost: error => `Fehler beim Aktualisieren des letzten Forenbeitrags: ${error.message}`,
-		  failedToGetCommentsByUser: error => `Fehler beim Abrufen von Kommentaren des Benutzers: ${error.message}`,
-		  failedToGetPostsByUser: error => `Fehler beim Abrufen von Beiträgen des Benutzers: ${error.message}`,
-		  usersConnectionsNotFound: "Verbindungen des Benutzers nicht gefunden",
-		  failedToGetFriendsPosts: error => `Fehler beim Abrufen von Beiträgen von Freunden: ${error.message}`,
-		  failedToGetCommentsByPost: error => `Fehler beim Abrufen von Kommentaren des Beitrags: ${error.message}`,
-		  failedToGetUserRole: error => `Fehler beim Abrufen der Benutzerrolle: ${error.message}`,
-		  failedToDeleteUser: error => `Fehler beim Löschen des Benutzers: ${error.message}`,
-		  failedToCreateNotification: error => `Fehler beim Erstellen der Benachrichtigung: ${error.message}`,
-		  failedToGetNotifications: error => `Fehler beim Abrufen von Benachrichtigungen: ${error.message}`,
-		  failedToGetArticles: error => `Fehler beim Abrufen von Artikeln: ${error.message}`,
-		  failedToUpdateUser: error => `Fehler beim Aktualisieren des Benutzers: ${error.message}`,
-		
-		  // jwt.middleware.js
-		  missingAuthHeader: 'Fehlender Authentifizierungsheader',
-		  noTokenProvided: 'Kein Token bereitgestellt',
-		  missingJWTToken: 'JWT-Token fehlt',
-		
-		  // forum.controller.js
-		  tooManyRequests: 'Zu viele Anfragen, bitte versuchen Sie es später erneut.',
-		  tooManyRequestsForSendingMessages: 'Zu viele Anfragen zum Senden von Nachrichten, bitte versuchen Sie es später erneut.',
-		
-		  // forum.service.js
-		  missingContent: 'Inhalt fehlt',
-		  missingTitle: 'Titel fehlt',
-		  postCreatedSuccessfully: 'Beitrag erfolgreich erstellt',
-		  missingPostId: 'Beitrags-ID fehlt',
-		  commentCreatedSuccessfully: 'Kommentar erfolgreich erstellt',
-		  notUsedAnymore: 'Nicht mehr verwendet',
-		  missingReaction: 'Reaktion fehlt',
-		  reactionAddedSuccessfully: 'Reaktion erfolgreich hinzugefügt',
-		  failedToGetArticles: error => `Fehler beim Abrufen von Artikeln: ${error.message}`,
-		  cannotSendMessageToYourself: 'Nachricht kann nicht an sich selbst gesendet werden',
-		  messageFrom: senderName => `Neue Nachricht von ${senderName}`,
-		  receivedMessage: 'Sie haben eine neue Nachricht erhalten',
-		  messageSentSuccessfully: 'Nachricht erfolgreich gesendet',
-		  amountsMustBeValidNumbers: 'Betrag muss eine gültige Zahl sein',
-		  amountsMustBeNonNegativeIntegers: 'Betrag muss eine nicht-negative Ganzzahl sein',
-		  endAmountMustBeGreaterThanStartAmount: 'Endbetrag muss größer als Startbetrag sein',
-		  amountsMustBeDifferent: 'Betrag muss unterschiedlich sein',
-		  youAreNowFollowing: username => `Sie folgen jetzt ${username}`,
-		  notificationRead: 'Benachrichtigung gelesen',
-		  notificationNotFound: 'Benachrichtigung nicht gefunden',
-		  failedToReadNotification: error => `Benachrichtigung konnte nicht gelesen werden: ${error.message}`,
+		// General messages
+		administratorRole: 'Administrator',
+		moderatorRole: 'Moderator',
+		userRole: 'User',
+		serverConnected: 'Server ist mit der Datenbank verbunden.',
+		serverRunningPort: port => `Server läuft auf Port ${port}`,
+		URLNotFound: 'URL nicht gefunden',
 
-		  // user.controller.js
-		  tooManyRequestsForLoginOrRegister: 'Zu viele Anfragen zum Anmelden oder Registrieren, bitte versuchen Sie es später erneut.',
-		
-		  // user.service.js
-		  missingRequiredFields: 'Erforderliche Felder fehlen',
-		  invalidCredentials: 'Ungültige Anmeldeinformationen',
-		  loggedInSuccessfully: username => `Sie haben sich erfolgreich angemeldet als ${username}`,
-		  usernameAlreadyExists: 'Benutzername existiert bereits',
-		  usernameMustBeAtLeastThreeCharacters: 'Benutzername muss mindestens 3 Zeichen lang sein',
-		  defaultProfilePicture: '/images/default.jpg',
-		  userCreatedSuccessfully: 'Benutzer erfolgreich erstellt',
-		  userUpdatedSuccessfully: 'Benutzer erfolgreich aktualisiert',
-		  cannotAddYourself: 'Sie können sich nicht selbst hinzufügen',
-		  friendAddedSuccessfully: 'Freund erfolgreich hinzugefügt',
-		  notificationCreatedSuccessfully: 'Benachrichtigung erfolgreich erstellt',
-		  invalidImageType: 'Ungültiger Bildtyp',
+		// user.function.js
+		failedToGetUserInfo: error => `Fehler beim Abrufen von Benutzerinformationen: ${error.message}`,
+		userNotFound: 'Benutzer nicht gefunden',
+		roleNotFound: 'Rolle nicht gefunden',
+		userNotAdministrator: 'Benutzer ist kein Administrator',
+		failedToUpdateUserRank: 'Fehler beim Aktualisieren des Benutzerrangs',
+		failedToIncrementField: 'Fehler beim Inkrementieren des Felds',
+		failedToUpdateLastForumPost: error => `Fehler beim Aktualisieren des letzten Forenbeitrags: ${error.message}`,
+		failedToGetCommentsByUser: error => `Fehler beim Abrufen von Kommentaren des Benutzers: ${error.message}`,
+		failedToGetPostsByUser: error => `Fehler beim Abrufen von Beiträgen des Benutzers: ${error.message}`,
+		usersConnectionsNotFound: "Verbindungen des Benutzers nicht gefunden",
+		failedToGetFriendsPosts: error => `Fehler beim Abrufen von Beiträgen von Freunden: ${error.message}`,
+		failedToGetCommentsByPost: error => `Fehler beim Abrufen von Kommentaren des Beitrags: ${error.message}`,
+		failedToGetUserRole: error => `Fehler beim Abrufen der Benutzerrolle: ${error.message}`,
+		failedToDeleteUser: error => `Fehler beim Löschen des Benutzers: ${error.message}`,
+		failedToCreateNotification: error => `Fehler beim Erstellen der Benachrichtigung: ${error.message}`,
+		failedToGetNotifications: error => `Fehler beim Abrufen von Benachrichtigungen: ${error.message}`,
+		failedToGetArticles: error => `Fehler beim Abrufen von Artikeln: ${error.message}`,
+		failedToUpdateUser: error => `Fehler beim Aktualisieren des Benutzers: ${error.message}`,
+
+		// jwt.middleware.js
+		missingAuthHeader: 'Fehlender Authentifizierungsheader',
+		noTokenProvided: 'Kein Token bereitgestellt',
+		missingJWTToken: 'JWT-Token fehlt',
+
+		// forum.controller.js
+		tooManyRequests: 'Zu viele Anfragen, bitte versuchen Sie es später erneut.',
+		tooManyRequestsForSendingMessages: 'Zu viele Anfragen zum Senden von Nachrichten, bitte versuchen Sie es später erneut.',
+
+		// forum.service.js
+		missingContent: 'Inhalt fehlt',
+		missingTitle: 'Titel fehlt',
+		postCreatedSuccessfully: 'Beitrag erfolgreich erstellt',
+		missingPostId: 'Beitrags-ID fehlt',
+		commentCreatedSuccessfully: 'Kommentar erfolgreich erstellt',
+		notUsedAnymore: 'Nicht mehr verwendet',
+		missingReaction: 'Reaktion fehlt',
+		reactionAddedSuccessfully: 'Reaktion erfolgreich hinzugefügt',
+		failedToGetArticles: error => `Fehler beim Abrufen von Artikeln: ${error.message}`,
+		cannotSendMessageToYourself: 'Nachricht kann nicht an sich selbst gesendet werden',
+		messageFrom: senderName => `Neue Nachricht von ${senderName}`,
+		receivedMessage: 'Sie haben eine neue Nachricht erhalten',
+		messageSentSuccessfully: 'Nachricht erfolgreich gesendet',
+		amountsMustBeValidNumbers: 'Betrag muss eine gültige Zahl sein',
+		amountsMustBeNonNegativeIntegers: 'Betrag muss eine nicht-negative Ganzzahl sein',
+		endAmountMustBeGreaterThanStartAmount: 'Endbetrag muss größer als Startbetrag sein',
+		amountsMustBeDifferent: 'Betrag muss unterschiedlich sein',
+		youAreNowFollowing: username => `Sie folgen jetzt ${username}`,
+		notificationRead: 'Benachrichtigung gelesen',
+		notificationNotFound: 'Benachrichtigung nicht gefunden',
+		failedToReadNotification: error => `Benachrichtigung konnte nicht gelesen werden: ${error.message}`,
+
+		// user.controller.js
+		tooManyRequestsForLoginOrRegister: 'Zu viele Anfragen zum Anmelden oder Registrieren, bitte versuchen Sie es später erneut.',
+
+		// user.service.js
+		missingRequiredFields: 'Erforderliche Felder fehlen',
+		invalidCredentials: 'Ungültige Anmeldeinformationen',
+		loggedInSuccessfully: username => `Sie haben sich erfolgreich angemeldet als ${username}`,
+		usernameAlreadyExists: 'Benutzername existiert bereits',
+		usernameMustBeAtLeastThreeCharacters: 'Benutzername muss mindestens 3 Zeichen lang sein',
+		defaultProfilePicture: '/images/default.jpg',
+		userCreatedSuccessfully: 'Benutzer erfolgreich erstellt',
+		userUpdatedSuccessfully: 'Benutzer erfolgreich aktualisiert',
+		cannotAddYourself: 'Sie können sich nicht selbst hinzufügen',
+		friendAddedSuccessfully: 'Freund erfolgreich hinzugefügt',
+		notificationCreatedSuccessfully: 'Benachrichtigung erfolgreich erstellt',
+		invalidImageType: 'Ungültiger Bildtyp',
+		couldNotRegisterUser: error => `Benutzer konnte nicht registriert werden: ${error.message}`,
+		cantLogin: error => `Anmeldung fehlgeschlagen: ${error.message}`,
+		couldNotUpdateUser: error => `Benutzer konnte nicht aktualisiert werden: ${error.message}`,
+		couldNotGetUser: error => `Benutzer konnte nicht abgerufen werden: ${error.message}`,
+		couldNotGetTextDB: error => `Text-Datenbank konnte nicht abgerufen werden: ${error.message}`,
+		couldNotLogoutUser: error => `Benutzer konnte nicht abgemeldet werden: ${error.message}`,
+		couldNotSendMessage: error => `Nachricht konnte nicht gesendet werden: ${error.message}`,
+		couldNotGetNotification: error => `Benachrichtigung konnte nicht abgerufen werden: ${error.message}`,
+		couldNotCreatePost: error => `Beitrag konnte nicht erstellt werden: ${error.message}`,
+		couldNotAddComment: error => `Kommentar konnte nicht hinzugefügt werden: ${error.message}`,
+		couldnotAddReaction: error => `Reaktion konnte nicht hinzugefügt werden: ${error.message}`,
+		couldNotGetCommentsByPost: error => `Kommentare konnten nicht nach Beitrag abgerufen werden: ${error.message}`,
+		couldNotGetCommentsByUser: error => `Kommentare konnten nicht nach Benutzer abgerufen werden: ${error.message}`,
+		couldNotGetCommentsById: error => `Kommentare konnten nicht nach ID abgerufen werden: ${error.message}`,
+		couldNotGetFollowingPosts: error => `Beiträge von abonnierten Benutzern konnten nicht abgerufen werden: ${error.message}`,
+		couldNotSendMessage: error => `Nachricht konnte nicht gesendet werden: ${error.message}`,
+		couldNotGetConversation: error => `Konversation konnte nicht abgerufen werden: ${error.message}`,
+		couldNotGetChatContacts: error => `Chat-Kontakte konnten nicht abgerufen werden: ${error.message}`,
+		couldNotReadNotification: error => `Benachrichtigung konnte nicht gelesen werden: ${error.message}`,
+		couldNotAddFollower: error => `Follower konnte nicht hinzugefügt werden: ${error.message}`,
+		couldNotAddFollowing: error => `Abonnement konnte nicht hinzugefügt werden: ${error.message}`,
 	}
 };
 

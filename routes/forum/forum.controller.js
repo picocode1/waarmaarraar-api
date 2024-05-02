@@ -3,13 +3,14 @@ const router = express.Router();
 
 const forumService = require('./forum.service');
 const userInfo = new (require('../../functions/user.function'));
+const helper = new (require('../../functions/helper.function.js'));
 
 require('dotenv').config();
 const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
 
 const rateLimit = require('express-rate-limit');
 
-let toMinutes = n => n * 60 * 1000
+
 
 // If anything is required with jwt/logged in user
 const jwtCheck = require('../../middleware/jwt.middleware');
@@ -17,7 +18,7 @@ const jwtCheck = require('../../middleware/jwt.middleware');
 
 // Define rate limit middleware for forum-related routes
 const forumRateLimit = rateLimit({
-    windowMs: toMinutes(5), // 5 minutes
+    windowMs: helper.toMinutes(5), // 5 minutes
     max: 30, // 30 requests per 5 minutes
     statusCode: 200,
     handler: function (req, res, next) {
@@ -29,7 +30,7 @@ const forumRateLimit = rateLimit({
 });
 
 const sendMessageRateLimit = rateLimit({
-    windowMs: toMinutes(1), // for example, 1 minute
+    windowMs: helper.toMinutes(1), // for example, 1 minute
     max: 15, // for example, 5 requests per minute
     handler: function (req, res, next) {
         res.status(429).json({
@@ -41,7 +42,7 @@ const sendMessageRateLimit = rateLimit({
 
 // Define rate limit middleware for forum-related routes
 const forumRateLimitPosting = rateLimit({
-    windowMs: toMinutes(5), // 5 minutes
+    windowMs: helper.toMinutes(5), // 5 minutes
     max: 5, // 5 requests per 5 minutes
     statusCode: 200,
     handler: function (req, res, next) {

@@ -64,8 +64,18 @@ class userInfo {
 				});
 
 			let data = JSON.parse(JSON.stringify(userData));
+			
+			// Calculate the user's age based on their birthday
+			if (userData.birthday) {
+				const ageDate = new Date(Date.now() - userData.birthday.getTime());
+				const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+				data.age = age;
+			}
+
 			data.followers = connectionData.followers;
 			data.following = connectionData.following;
+
+
 			// console.log(typeof(userData))
 
 			if (userData.private && authedUser !== username) {
@@ -76,7 +86,7 @@ class userInfo {
 
 			return data;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToGetUserInfo(error.message));
+			throw new Error(MESSAGE.failedToGetUserInfo(error));
 		}
 	}
 
@@ -114,7 +124,7 @@ class userInfo {
 
 			return user; // Optionally return the updated user document
 		} catch (error) {
-			throw new Error(MESSAGE.failedToUpdateUserRank(error.message));
+			throw new Error(MESSAGE.failedToUpdateUserRank(error));
 		}
 	}
 
@@ -157,7 +167,7 @@ class userInfo {
 			return updatedUser;
 		}
 		catch (error) {
-			throw new Error(MESSAGE.failedToUpdateLastForumPost(error.message));
+			throw new Error(MESSAGE.failedToUpdateLastForumPost(error));
 		}
 	}
 
@@ -174,7 +184,7 @@ class userInfo {
 			const comments = await Comments.find({ user: userId }).populate('post_id', '-user')
 			return comments;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToGetCommentsByUser(error.message));
+			throw new Error(MESSAGE.failedToGetCommentsByUser(error));
 		}
 	}
 
@@ -194,7 +204,7 @@ class userInfo {
 			const posts = await Post.find({ user: userId });
 			return posts;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToGetPostsByUser(error.message));
+			throw new Error(MESSAGE.failedToGetPostsByUser(error));
 		}
 	}
 
@@ -229,7 +239,7 @@ class userInfo {
 			
 			return posts;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToGetFriendsPosts(error.message));
+			throw new Error(MESSAGE.failedToGetFriendsPosts(error));
 		}
 	}
 
@@ -247,7 +257,7 @@ class userInfo {
 			
 			return comments;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToGetCommentsByPost(error.message));;
+			throw new Error(MESSAGE.failedToGetCommentsByPost(error));;
 		}
 	}
 
@@ -297,7 +307,7 @@ class userInfo {
 			const user = await User.findOne(getUsername(username)).populate('role');
 			return user.role.name;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToGetUserRole(error.message));
+			throw new Error(MESSAGE.failedToGetUserRole(error));
 		}
 	}
 	
@@ -318,7 +328,7 @@ class userInfo {
 			const deletedUser = await User.findOneAndDelete({ username });
 			return deletedUser;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToDeleteUser(error.message));
+			throw new Error(MESSAGE.failedToDeleteUser(error));
 		}
 	}
 
@@ -353,7 +363,7 @@ class userInfo {
 
 			return newNotification;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToCreateNotification(error.message));
+			throw new Error(MESSAGE.failedToCreateNotification(error));
 		}
 	};
 
@@ -382,7 +392,7 @@ class userInfo {
 	
 			return notifications;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToGetNotifications(error.message));
+			throw new Error(MESSAGE.failedToGetNotifications(error));
 		}
 	};
 
@@ -409,7 +419,7 @@ class userInfo {
 			console.log(articles);
             return articles;
         } catch (error) {
-			throw new Error(MESSAGE.failedToGetArticles(error.message));
+			throw new Error(MESSAGE.failedToGetArticles(error));
         }
     }
 
@@ -446,14 +456,12 @@ class userInfo {
 			user.tags = tags;
 			user.profile_picture = path;
 
-			console.log(user);
-	
 			// Save the updated user document
 			await user.save();
 	
 			return user;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToUpdateUser(error.message));
+			throw new Error(MESSAGE.failedToUpdateUser(error));
 		}
 	}
 
@@ -473,7 +481,6 @@ class userInfo {
 			throw new Error(MESSAGE.failedToReadNotification(error));
 		}
 
-
 		// try {
 		// 	// Find the notification by ID
 		// 	const notification = await Notification.findById(notificationId);
@@ -490,6 +497,18 @@ class userInfo {
 		// 	throw new Error(MESSAGE.failedToReadNotification(error.message));
 		// }
 	}
+
+	async updateLastOnline(id) {
+		try {
+			// Find the user document by id and increment the specified field
+			const updatedUser = await User.findOneAndUpdate({ _id: id }, { last_online: new Date() }, { new: true });
+			return updatedUser;
+		}
+		catch (error) {
+			throw new Error(MESSAGE.failedToUpdateLastOnline(error));
+		}
+	}
+
 
 //	async areFriends(userId1, userId2) {
 //		try {

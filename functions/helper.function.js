@@ -24,6 +24,17 @@ function deepClone(obj) {
 var helper = class helper {
 
 	/**
+	 * Convert a number to minutes
+	 * @param {number} n
+	 * @returns {number}
+	 * @example
+	 * helper.toMinutes(10); // 600000  
+	*/
+	toMinutes = n => n * 60 * 1000
+
+
+
+	/**
 	 * Normalize a string
 	 * @param {string} string
 	 * @param {boolean} lowercase

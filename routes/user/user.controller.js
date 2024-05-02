@@ -8,16 +8,13 @@ require('dotenv').config();
 const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
 
 const textDB = require('../../textDB/messages.text')
+const helper = new (require('../../functions/helper.function.js'));
 
-
-// eduarte gewerkt aan messages text veld en emoji codeb
-
-let toMinutes = n => n * 60 * 1000
 
 
 // Define rate limit middleware for /user/* routes with a rate limit of 3 requests per 5 minutes
 const userRateLimit = rateLimit({
-    windowMs: toMinutes(1),
+    windowMs: helper.toMinutes(1),
     max: 10,
     statusCode: 200,
     handler: function (req, res, next) {
@@ -30,7 +27,7 @@ const userRateLimit = rateLimit({
 
 // Define rate limit middleware for login and register routes with a rate limit of 10 requests per minute
 const loginRegisterRateLimit = rateLimit({
-    windowMs: toMinutes(1), // 1 minute
+    windowMs: helper.toMinutes(1), // 1 minute
     max: 5, // 10 requests per minute
     handler: function (req, res, next) {
         res.status(429).json({
