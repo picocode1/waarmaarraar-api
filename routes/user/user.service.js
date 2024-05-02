@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const bcrypt = require('bcrypt');
 const User = require('../../routes/user/user.model.js');
 
@@ -5,11 +7,12 @@ const Notification = require('../../models/notification.model.js');
 const userInfo = new (require('../../functions/user.function.js'));
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const imageType = require('file-type-mime').parse;
+const fs = require('fs')
 
-
-require('dotenv').config();
 const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
 const _textDB = require('../../textDB/messages.text');
+const { log } = require('winston');
 
 
 const ObjectId = require('mongoose').Types.ObjectId;
@@ -148,39 +151,40 @@ const logoutUser = async (req, res, next) => {
 
 
 
-
 //TODO: 
 // Test image upload and correct path to save image
 // make sure to make a PUT request to update user info
 
 const updateUser = async (req, res, next) => {
-	let allowedTypes = ['image/jpeg', 'image/png', 'image/jpg']
+    const authedUser = req.userData;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
-	console.log(req);
-	return
-	try {
-		const authedUser = req.userData
-		const { image } = req.files;
+    try {
+        const { name, residence, birthday, profession, tags, profile_picture } = req.body;
 
+        // Convert base64 data to a buffer
+        const imageBuffer = Buffer.from(profile_picture.split(';base64,').pop(), 'base64');
 
-		// Not tested
-		if (allowedTypes.includes(image.mimetype) == false) {
-			return res.status(500).json({ message: MESSAGE.invalidImageType, success: false });
-		}
+        // Check the image type
+        const imageInfo = imageType(imageBuffer);
+        if (!imageInfo || !allowedTypes.includes(imageInfo.mime)) {
+            return res.status(500).json({ message: MESSAGE.invalidImageType, success: false });
+        }
+        const extension = imageInfo.ext;
 
 		// should be like "661f9b533fb2c0bcd0366685.png"
-		const profile_picture = `${authedUser._id}.${image.name.split('.').pop()}`
-		
-		
+        const fileName = `${authedUser._id}.${extension}`;
 
-		console.log(profile_picture);
+		let path = `/images/${fileName}`
 
-		image.mv('public/images/' + profile_picture);
-		
+		// Save the image to the public/images folder
+		const image = fs.createWriteStream("public" + path);
+		image.write(imageBuffer);
+		image.end();
 
-		const { name, residence, birthday, profession, tags } = req.body;
+		console.log(path);
 
-		const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags, profile_picture);
+		const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags, path);
 
 		return res.status(200).json({ message: MESSAGE.userUpdatedSuccessfully, success: true });
 	} catch (error) {

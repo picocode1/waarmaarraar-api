@@ -416,10 +416,10 @@ class userInfo {
 
 	// const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags);
 	
-	async updateUser(authedUser, name, residence, birthday, profession, tags, profile_picture) {
+	async updateUser(authedUser, name, residence, birthday, profession, tags, path) {
 		try {
 			// Find the user by username
-			const user = await User.findOne(getUsername(authedUser));
+			const user = await User.findOne(getUsername(authedUser.username));
 			if (!user) {
 				throw new Error(MESSAGE.userNotFound);
 			}
@@ -444,7 +444,7 @@ class userInfo {
 			user.birthday = birthdayDate;
 			user.profession = profession;
 			user.tags = tags;
-			user.profile_picture = profile_picture;
+			user.profile_picture = path;
 
 			console.log(user);
 	

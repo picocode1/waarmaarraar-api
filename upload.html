@@ -10,6 +10,9 @@
 	<p id="b64"></p>
 	<img id="img" height="150">
 	<script>
+
+
+
 		function readFile() {
   
 			if (!this.files || !this.files[0]) return;
@@ -17,7 +20,43 @@
 			const FR = new FileReader();
 				
 			FR.addEventListener("load", function(evt) {
-				console.log(evt.target.result);
+
+				// Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWZjNGRkODU3NTZjMTk4ODg1MjI4ZTkiLCJ1c2VybmFtZSI6IkpvZXkiLCJ0b2tlbl9pZCI6IjY1ZmM0ZTAyNTc1NmMxOTg4ODUyMjhmMCIsImlhdCI6MTcxMTAzMzg1OCwiZXhwIjoxNzExNjM4NjU4fQ.Nh2sy9CcinpZ_ecTAJJJM70j-qq5VrDRy0hQ-2dzsCM
+				// {
+					// "name": "Rik",
+					// "residence": "Maastricht",
+					// "birthday": "26-02-1999",
+					// "profession": "Software Developer",
+					// "tags": ["test1", "test2", "test3"]
+					// "profile_picture": evt.target.result
+				// }
+
+				const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWZhYjYyZDEwY2EzNjZiMjNhYTlhMGQiLCJ1c2VybmFtZSI6InJpayIsImlhdCI6MTcxNDY0MDA0MiwiZXhwIjoxNzE3MzE4NDQyfQ.2wqSv2wmkaTViSmnYfb5mwlhokbPgCnxL06mYeRE2Jg";
+
+				const data = {
+					"name": "Rik",
+					"residence": "Maastricht",
+					"birthday": "26-02-1999",
+					"profession": "Software Developer",
+					"tags": ["test1", "test2", "test3"],
+					"profile_picture": evt.target.result
+				};
+
+				fetch("https://dockertest.dego.dev/user/updateUser", {
+					method: "PUT",
+					headers: {
+						"Authorization": token,
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(data)
+				})
+				.then(response => {
+					console.log(response);
+				})
+				.catch(error => {
+					console.log(error);
+				});
+
 				document.querySelector("#img").src         = evt.target.result;
 				document.querySelector("#b64").textContent = evt.target.result;
 			}); 

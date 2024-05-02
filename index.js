@@ -4,10 +4,10 @@ const fs = require("fs");
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
-const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 const https = require('https');
+const bodyParser = require('body-parser');
 
 const helper = new (require('./functions/helper.function.js'));
 const userInfo = new (require('./functions/user.function.js'));
@@ -71,13 +71,16 @@ populateRolesObject()
 
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Stel de maximale verzoekgrootte in op 10 MB
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(cookieParser());
 
 app.use(require('./middleware/sanitize.middleware'))
 // app.use(require('./middleware/logger.middleware'))
 app.use(require('./middleware/mobile.middleware')) // req.isMobile - use anywhere to check if user is using a phone
+
 
 
 // Define log format
@@ -131,7 +134,7 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Max-Age', 600); // remove later
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT');
 	res.setHeader('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Content-Type, Accept');
 	next();
 });
