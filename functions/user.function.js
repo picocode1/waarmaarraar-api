@@ -457,6 +457,39 @@ class userInfo {
 		}
 	}
 
+	async readNotification(notificationId, userId) {
+		try {
+
+			const notification = await Notification.findOne({ _id: notificationId, user: userId });
+
+			if (!notification) {
+				throw new Error(MESSAGE.notificationNotFound);
+			}
+			// Update the notification to mark it as read
+			notification.hasRead = true;
+			await notification.save();
+			
+		} catch (error) {
+			throw new Error(MESSAGE.failedToReadNotification(error));
+		}
+
+
+		// try {
+		// 	// Find the notification by ID
+		// 	const notification = await Notification.findById(notificationId);
+		// 	if (!notification) {
+		// 		throw new Error(MESSAGE.notificationNotFound);
+		// 	}
+	
+		// 	// Update the notification to mark it as read
+		// 	notification.read = true;
+		// 	await notification.save();
+	
+		// 	return notification;
+		// } catch (error) {
+		// 	throw new Error(MESSAGE.failedToReadNotification(error.message));
+		// }
+	}
 
 //	async areFriends(userId1, userId2) {
 //		try {

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<input id="inp" type="file">
+	<p id="b64"></p>
+	<img id="img" height="150">
+	<script>
+		function readFile() {
+  
+			if (!this.files || !this.files[0]) return;
+				
+			const FR = new FileReader();
+				
+			FR.addEventListener("load", function(evt) {
+				console.log(evt.target.result);
+				document.querySelector("#img").src         = evt.target.result;
+				document.querySelector("#b64").textContent = evt.target.result;
+			}); 
+				
+			FR.readAsDataURL(this.files[0], function(err, data) {
+				console.log(data);
+			});
+			
+		}
+
+		document.querySelector("#inp").addEventListener("change", readFile);
+	</script>
+</body>
+</html>

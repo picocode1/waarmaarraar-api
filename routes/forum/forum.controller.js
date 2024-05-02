@@ -74,6 +74,6 @@ router.get('/chatContacts', jwtCheck, forumRateLimit, (req, res) => forumService
 
 router.post('/follow/:username', jwtCheck, forumRateLimit, (req, res) => forumService.addFollower(req, res));
 
-
+router.post('/readNotification/:notificationId', jwtCheck, forumRateLimit, (req, res) => forumService.readNotification(req, res));
 
 module.exports = router;

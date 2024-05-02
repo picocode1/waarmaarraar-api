@@ -436,6 +436,20 @@ const getChatContacts = async (req, res) => {
     }
 };
 
+const readNotification = async (req, res) => {
+	try {
+        const userId = req.userData._id;
+		const notificationId = req.params.notificationId;
+
+		// Call readNotification method from userInfo to mark the notification as read
+		const updatedNotification = await userInfo.readNotification(notificationId, userId);
+
+		return res.status(200).json({ message: MESSAGE.notificationRead, success: true });
+	} catch (error) {
+		return res.status(500).json({ message: error.message, success: false });
+	}
+}
+
 
 const addFollower = async (req, res) => {
     try {
@@ -488,5 +502,6 @@ module.exports = {
 	addFollower,
     addFollowing,
 	getPostById,
-	getFollowingPosts
+	getFollowingPosts,
+	readNotification
 }

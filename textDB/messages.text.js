@@ -66,6 +66,9 @@ const MESSAGE = {
 		endAmountMustBeGreaterThanStartAmount: 'End amount must be greater than start amount',
 		amountsMustBeDifferent: 'Amounts must be different',
 		youAreNowFollowing: username => `You are now following ${username}`,
+		notificationRead: 'Notification read',
+		notificationNotFound: 'Notification not found',
+		failedToReadNotification: error => `Failed to read notification: ${error.message}`,
 
 		// user.controller.js
 		tooManyRequestsForLoginOrRegister: 'Too many requests for login or register, please try again later.',
@@ -143,6 +146,9 @@ const MESSAGE = {
 		endAmountMustBeGreaterThanStartAmount: 'Eindbedrag moet groter zijn dan startbedrag',
 		amountsMustBeDifferent: 'Bedragen moeten verschillend zijn',
 		youAreNowFollowing: username => `Je volgt nu ${username}`,
+		notificationRead: 'Notificatie gelezen',
+		notificationNotFound: 'Notificatie niet gevonden',
+		failedToReadNotification: error => `Notificatie kon niet worden gelezen: ${error.message}`,
 
 		// user.controller.js
 		tooManyRequestsForLoginOrRegister: 'Te veel verzoeken voor aanmelden of registreren, probeer het later opnieuw.',
@@ -219,7 +225,10 @@ const MESSAGE = {
 		  endAmountMustBeGreaterThanStartAmount: 'Endbetrag muss größer als Startbetrag sein',
 		  amountsMustBeDifferent: 'Betrag muss unterschiedlich sein',
 		  youAreNowFollowing: username => `Sie folgen jetzt ${username}`,
-		
+		  notificationRead: 'Benachrichtigung gelesen',
+		  notificationNotFound: 'Benachrichtigung nicht gefunden',
+		  failedToReadNotification: error => `Benachrichtigung konnte nicht gelesen werden: ${error.message}`,
+
 		  // user.controller.js
 		  tooManyRequestsForLoginOrRegister: 'Zu viele Anfragen zum Anmelden oder Registrieren, bitte versuchen Sie es später erneut.',
 		
