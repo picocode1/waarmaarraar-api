@@ -60,9 +60,6 @@ router.get('/getNotifications', jwtCheck, userRateLimit, (req, res) => userServi
 
 router.get('/whoami', jwtCheck, userRateLimit, (req, res) => res.json(req.userData))
 
-router.get('/textDB/:property?', /* jwtCheck ,*/ userRateLimit, (req, res) => userService.textDB(req, res));
-
-
 
 
 // Apply sendMessageRateLimit middleware to these routes

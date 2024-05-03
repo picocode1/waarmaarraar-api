@@ -77,4 +77,7 @@ router.post('/follow/:username', jwtCheck, forumRateLimit, (req, res) => forumSe
 
 router.post('/readNotification/:notificationId', jwtCheck, forumRateLimit, (req, res) => forumService.readNotification(req, res));
 
+router.get('/textDB/:property?', /* jwtCheck ,*/ forumRateLimit, (req, res) => forumService.textDB(req, res));
+
+
 module.exports = router;

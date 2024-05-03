@@ -5,13 +5,6 @@ const {
 } = require("winston");
 
 const MESSAGE = {
-
-	// General messages
-	administratorRole: 'Administrator',
-	moderatorRole: 'Moderator',
-	userRole: 'User',
-	functionNotAllowed: 'Function not allowed',
-
 	// English messages
 	en: {
 		// General messages
@@ -21,6 +14,7 @@ const MESSAGE = {
 		serverConnected: 'Server is connected to the database.',
 		serverRunningPort: port => `Server is running on port ${port}`,
 		URLNotFound: 'URL not found',
+		functionNotAllowed: 'Function not allowed',
 
 		// user.function.js
 		failedToGetuserFunction: error => `Failed to get user info: ${error.message}`,
@@ -125,6 +119,7 @@ const MESSAGE = {
 		serverConnected: 'Server is verbonden met de database.',
 		serverRunningPort: port => `Server draait op poort ${port}`,
 		URLNotFound: 'URL niet gevonden',
+		functionNotAllowed: 'Functie niet toegestaan',
 
 		// user.function.js
 		failedToGetuserFunction: error => `Het ophalen van gebruikersgegevens is mislukt: ${error.message}`,
@@ -225,6 +220,7 @@ const MESSAGE = {
 		serverConnected: 'Server ist mit der Datenbank verbunden.',
 		serverRunningPort: port => `Server läuft auf Port ${port}`,
 		URLNotFound: 'URL nicht gefunden',
+		functionNotAllowed: 'Funktion nicht erlaubt',
 
 		// user.function.js
 		failedToGetuserFunction: error => `Fehler beim Abrufen von Benutzerinformationen: ${error.message}`,

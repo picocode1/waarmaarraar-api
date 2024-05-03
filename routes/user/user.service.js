@@ -11,7 +11,6 @@ const imageType = require('file-type-mime').parse;
 const fs = require('fs')
 
 const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
-const _textDB = require('../../textDB/messages.text');
 const { log } = require('winston');
 
 
@@ -282,36 +281,7 @@ const getUser = async (req, res, next) => {
 	}
 }
 
-const textDB = async (req, res, next) => {
-	try {
-		let property = req.params.property;
-	
-		if (property) {
-			// Loop through all the objects like en and nl and de but we don't know how many there are
-			let languages = Object.keys(_textDB);
-			let text = {};
-	
-			for (let i = 0; i < languages.length; i++) {
-				let lang = languages[i];
-	
-				// Check if the property is a function
-				if (typeof _textDB[lang][property] == "function") {
-					res.status(500).json({ message: _textDB.functionNotAllowed, success: false });
-					return
-				}
-	
-				text[lang] = _textDB[lang][property];
-			}
-	
-			text.success = true;
-			res.json(text);
-		} else {
-			res.json(_textDB);
-		}
-	} catch (error) {
-		return res.status(500).json({ message: MESSAGE.couldNotGetTextDB(error), success: false  });
-	}
-}
 
 
-module.exports = { loginUser, registerUser, getUser, logoutUser, addFriend, sendMessage, getNotifications, updateUser, textDB };
+
+module.exports = { loginUser, registerUser, getUser, logoutUser, addFriend, sendMessage, getNotifications, updateUser };

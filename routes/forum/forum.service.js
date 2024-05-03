@@ -17,6 +17,7 @@ const Connection = require('../../models/connections.model.js')
 
 require('dotenv').config();
 const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
+const _textDB = require('../../textDB/messages.text');
 
 
 const createPost = async (req, res) => {
@@ -461,6 +462,48 @@ const readNotification = async (req, res) => {
 	}
 }
 
+const textDB = async (req, res, next) => {
+	try {
+		let property = req.params.property;
+	
+		if (property) {
+			// Loop through all the objects like en and nl and de but we don't know how many there are
+			let languages = Object.keys(_textDB);
+			let text = {};
+	
+			for (let i = 0; i < languages.length; i++) {
+				let lang = languages[i];
+	
+				// Check if the property is a function
+				if (typeof _textDB[lang][property] == "function") {
+					res.status(500).json({ message: MESSAGE.functionNotAllowed, success: false });
+					return
+				}
+	
+				text[lang] = _textDB[lang][property];
+			}
+	
+			text.success = true;
+			res.json(text);
+		} else {
+			let functionsIncluded = {};
+			for (let lang in _textDB) {
+				functionsIncluded[lang] = {};
+				for (let key in _textDB[lang]) {
+					if (typeof _textDB[lang][key] === 'function') {
+						functionsIncluded[lang][key] = _textDB[lang][key].toString();
+					} else {
+						functionsIncluded[lang][key] = _textDB[lang][key];
+					}
+				}
+			}
+			res.json(functionsIncluded);
+		}
+	} catch (error) {
+		return res.status(500).json({ message: MESSAGE.couldNotGetTextDB(error), success: false  });
+	}
+}
+
 
 const addFollower = async (req, res) => {
     try {
@@ -514,5 +557,6 @@ module.exports = {
     addFollowing,
 	getPostById,
 	getFollowingPosts,
-	readNotification
+	readNotification,
+	textDB
 }
