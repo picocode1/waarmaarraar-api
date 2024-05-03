@@ -161,9 +161,10 @@ const logoutUser = async (req, res, next) => {
 // Test image upload and correct path to save image
 // make sure to make a PUT request to update user info
 
+
 const updateUser = async (req, res, next) => {
+	const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     const authedUser = req.userData;
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
     try {
         const { name, residence, birthday, profession, tags, profile_picture } = req.body;
@@ -174,7 +175,8 @@ const updateUser = async (req, res, next) => {
         // Check the image type
         const imageInfo = imageType(imageBuffer);
         if (!imageInfo || !allowedTypes.includes(imageInfo.mime)) {
-            return res.status(500).json({ message: MESSAGE.invalidImageType, success: false });
+			let msg = `${allowedTypes.map(str => "." + str.split('/').pop()).join(', ')}`
+            return res.status(500).json({ message: MESSAGE.invalidImageType(msg), success: false });
         }
         const extension = imageInfo.ext;
 

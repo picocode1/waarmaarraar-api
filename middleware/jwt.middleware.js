@@ -46,7 +46,7 @@ module.exports = (req, res, next) => {
         if (jwtCheckCounts[decoded._id].count >= checkInterval || currentTime - jwtCheckCounts[decoded._id].lastCheckedAt > resetTime) {
             // Update the last online field in the database
             userFunction.updateLastOnline(decoded._id);
-			console.log("Updated last online field in the database", decoded._id)
+			// console.log("Updated last online field in the database", decoded._id)
 
             // Reset count and last checked time
             jwtCheckCounts[decoded._id].count = 0;

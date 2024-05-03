@@ -15,16 +15,8 @@ const userFunction = new(require('./functions/user.function.js'));
 const Role = require('./models/roles.model.js');
 
 const winston = require('winston');
-const {
-	createLogger,
-	format,
-	transports
-} = winston;
-const {
-	combine,
-	label,
-	printf
-} = format;
+const { createLogger, format, transports} = winston;
+const { combine, label, printf } = format;
 const DailyRotateFile = require('winston-daily-rotate-file');
 
 
@@ -68,6 +60,7 @@ async function populateRolesObject() {
 		console.error("Error populating global roles object:", error);
 	}
 }
+populateRolesObject()
 
 // {
 // 	Administrator: '65f1b5ed1503fb603012b964',
@@ -75,20 +68,13 @@ async function populateRolesObject() {
 // 	User: '65fa90d19b18b0bcf6c8b788'
 // }
 
-populateRolesObject()
 
 // Middleware to parse URL-encoded bodies
-app.use(express.urlencoded({
-	extended: true
-}));
+app.use(express.urlencoded({ extended: true }));
+
 // Stel de maximale verzoekgrootte in op 10 MB
-app.use(bodyParser.json({
-	limit: '10mb'
-}));
-app.use(bodyParser.urlencoded({
-	limit: '10mb',
-	extended: true
-}));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(cookieParser());
 
@@ -99,11 +85,7 @@ app.use(require('./middleware/mobile.middleware')) // req.isMobile - use anywher
 
 
 // Define log format
-const logFormat = printf(({
-	level,
-	message,
-	label
-}) => {
+const logFormat = printf(({ level, message, label }) => {
 	const now = new Date();
 	const formattedDate = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} - ${now.getDate().toString().padStart(2, '0')}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getFullYear()}`;
 
@@ -112,12 +94,7 @@ const logFormat = printf(({
 
 // Create Winston logger
 const logger = createLogger({
-	format: combine(
-		label({
-			label: 'WMR'
-		}),
-		logFormat
-	),
+	format: combine( label({ label: 'WMR' }), logFormat),
 	transports: [
 		// Console transport
 		new transports.Console({
@@ -181,18 +158,13 @@ app.get("/api", (req, res) => {
 
 		// Compare path prefixes first
 		const prefixComparison = prefixA.localeCompare(prefixB);
-		if (prefixComparison !== 0) {
-			return prefixComparison;
-		}
+		if (prefixComparison !== 0) return prefixComparison
 
 		// If path prefixes are the same, compare full routes
 		return a.localeCompare(b);
 	});
 
-	res.json({
-		routes: sortedRoutes,
-		success: true,
-	});
+	res.json({ routes: sortedRoutes, success: true});
 });
 
 const SSL = {
@@ -240,8 +212,5 @@ urls.forEach(url => {
 
 // Error handler
 app.get("*", (req, res, next) => {
-	res.status(212).json({
-		message: MESSAGE.URLNotFound,
-		success: false
-	});
+	res.status(212).json({ message: MESSAGE.URLNotFound, success: false });
 });

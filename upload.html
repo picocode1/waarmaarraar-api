@@ -11,14 +11,14 @@
 	<img id="img" height="150">
 	<script>
 		function readFile() {
-  
+			
 			if (!this.files || !this.files[0]) return;
 				
 			const FR = new FileReader();
 				
 			FR.addEventListener("load", function(evt) {
 				
-				const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWZhYjYyZDEwY2EzNjZiMjNhYTlhMGQiLCJ1c2VybmFtZSI6InJpayIsImlhdCI6MTcxNDY0Nzg2NCwiZXhwIjoxNzE3MzI2MjY0fQ.J-XG-OEOhhVUqRqkluVGnIxSfeiEGKdR9bx0_1iYCD0";
+				const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWZhYjYyZDEwY2EzNjZiMjNhYTlhMGQiLCJ1c2VybmFtZSI6InJpayIsImlhdCI6MTcxNDcyNDA3NywiZXhwIjoxNzE3NDAyNDc3fQ.3ZBdtA9Wu1SuW97iBa32UKAvcXpZI1tv31qkI1FL67w";
 
 				const data = {
 					"name": "Rik",
@@ -41,6 +41,10 @@
 				document.querySelector("#img").src         = evt.target.result;
 				document.querySelector("#b64").textContent = evt.target.result;
 			}); 
+
+			FR.readAsDataURL(this.files[0], function(err, data) {
+				console.log(data);
+			});
 		}
 
 		document.querySelector("#inp").addEventListener("change", readFile);
