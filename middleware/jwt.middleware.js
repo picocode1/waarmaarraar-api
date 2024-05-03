@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const userInfo = new (require('../functions/user.function.js'));
+const userFunction = new (require('../functions/user.function.js'));
 const helper = new (require('../functions/helper.function.js'));
 
 
@@ -45,7 +45,7 @@ module.exports = (req, res, next) => {
         const currentTime = Date.now();
         if (jwtCheckCounts[decoded._id].count >= checkInterval || currentTime - jwtCheckCounts[decoded._id].lastCheckedAt > resetTime) {
             // Update the last online field in the database
-            userInfo.updateLastOnline(decoded._id);
+            userFunction.updateLastOnline(decoded._id);
 			console.log("Updated last online field in the database", decoded._id)
 
             // Reset count and last checked time

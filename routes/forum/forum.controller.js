@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const forumService = require('./forum.service');
-const userInfo = new (require('../../functions/user.function'));
+const userFunction = new (require('../../functions/user.function'));
 const helper = new (require('../../functions/helper.function.js'));
 
 require('dotenv').config();

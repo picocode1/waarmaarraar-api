@@ -8,7 +8,7 @@ const Reaction = require('./models/reaction.model.js');
 
 const Role = require('../../models/roles.model.js');
 
-const userInfo = new (require('../../functions/user.function.js'));
+const userFunction = new (require('../../functions/user.function.js'));
 const helper = new (require('../../functions/helper.function.js'));
 
 const Messages = require('../../models/message.model.js');
@@ -62,15 +62,15 @@ const createPost = async (req, res) => {
 
 		if (isArticle) {
 			// Increment the article_count field in the user document
-			userInfo.incrementField(UD.username, "articles_count", 1);
+			userFunction.incrementField(UD.username, "articles_count", 1);
 		} else {
-			userInfo.incrementField(UD.username, "forum_posts_count", 1);
+			userFunction.incrementField(UD.username, "forum_posts_count", 1);
 		}
 
 		
 		
 		// lastForumPost
-		userInfo.updateLastPost(UD.username);
+		userFunction.updateLastPost(UD.username);
 
         // Respond with success message
         res.status(200).json({ message: MESSAGE.postCreatedSuccessfully, 
@@ -118,7 +118,7 @@ const addComment = async (req, res) => {
         // Save the comment to the database
         const savedComment = await newComment.save();
 
-		userInfo.incrementField(UD.username, "comments_count", 1);
+		userFunction.incrementField(UD.username, "comments_count", 1);
 
 
         // Respond with success message
@@ -259,7 +259,7 @@ const getCommentsByPost = async (req, res) => {
         const { postId } = req.params;
 
         // Retrieve comments by post ID
-        const comments = await userInfo.getCommentsByPost(postId);
+        const comments = await userFunction.getCommentsByPost(postId);
 
 		// log the content of the comments
 		const commentsWithEmojis = helper.convertEmojis(comments, "comment");
@@ -277,7 +277,7 @@ const getCommentsByUser = async (req, res) => {
 		const { userId } = req.params;
 		
         // Retrieve comments by user ID
-        const comments = await userInfo.getCommentsByUser(userId);
+        const comments = await userFunction.getCommentsByUser(userId);
 
 		const commentsWithEmojis = helper.convertEmojis(comments, "comment");
 
@@ -292,7 +292,7 @@ const getPostById = async (req, res) => {
 		const { postId } = req.params;
 
 		// Retrieve post by post ID
-		const post = await userInfo.getPostById(postId);
+		const post = await userFunction.getPostById(postId);
 
 		const postWithEmojis = helper.convertEmojis(post, "article");
 
@@ -309,7 +309,7 @@ const getFollowingPosts = async (req, res) => {
         const UD = req.userData; // Assuming req.user is properly set in middleware
 
 		// Retrieve posts by user ID
-		const posts = await userInfo.getFollowingPosts(UD._id ,amount);
+		const posts = await userFunction.getFollowingPosts(UD._id ,amount);
 		res.status(200).json({ data: posts, success: true });
 	} catch (error) {
 		res.status(500).json({ message: MESSAGE.couldNotGetFollowingPosts(error), success: false });
@@ -319,7 +319,7 @@ const getFollowingPosts = async (req, res) => {
 
 const getArticles = async (req, res) => {
     try {
-        const articles = await userInfo.getArticles()
+        const articles = await userFunction.getArticles()
 
 		const articlesWithEmojis = helper.convertEmojis(articles, "article");
 
@@ -345,7 +345,7 @@ const sendMessage = async (req, res) => {
         await newMessage.save();
 
 		// Send a notification to the receiver
-		userInfo.sendNotification(receiver, MESSAGE.messageFrom(senderName), MESSAGE.receivedMessage, sender);
+		userFunction.sendNotification(receiver, MESSAGE.messageFrom(senderName), MESSAGE.receivedMessage, sender);
 
         res.status(201).json({ message: MESSAGE.messageSentSuccessfully, success: true });
     } catch (error) {
@@ -452,8 +452,8 @@ const readNotification = async (req, res) => {
         const userId = req.userData._id;
 		const notificationId = req.params.notificationId;
 
-		// Call readNotification method from userInfo to mark the notification as read
-		const updatedNotification = await userInfo.readNotification(notificationId, userId);
+		// Call readNotification method from userFunction to mark the notification as read
+		const updatedNotification = await userFunction.readNotification(notificationId, userId);
 
 		return res.status(200).json({ message: MESSAGE.notificationRead, success: true });
 	} catch (error) {
@@ -467,8 +467,8 @@ const addFollower = async (req, res) => {
         const { username } = req.params; // Extract username of the user to follow
         const followerUsername = req.userData.username; // Extract username of the follower from authenticated user data
 
-        // Call addFollower method from userInfo to add follower
-        const result = await userInfo.addFollower(username, followerUsername);
+        // Call addFollower method from userFunction to add follower
+        const result = await userFunction.addFollower(username, followerUsername);
         
         // Check if the result contains a success message
         if (result.success) {
@@ -487,8 +487,8 @@ const addFollowing = async (req, res) => {
         const { username } = req.params; // Extract username of the user to follow
         const followingUsername = req.userData.username; // Extract username of the follower from authenticated user data
 
-        // Call addFollowing method from userInfo to add following user
-        const updatedUser = await userInfo.addFollowing(username, followingUsername);
+        // Call addFollowing method from userFunction to add following user
+        const updatedUser = await userFunction.addFollowing(username, followingUsername);
 		
         
         return res.status(200).json({ message: MESSAGE.youAreNowFollowing(username), success: true });

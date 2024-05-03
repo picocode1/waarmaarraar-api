@@ -14,7 +14,7 @@ const MESSAGE = require('../textDB/messages.text')[process.env.LANGUAGE];
 
 const getUsername = user => { return { username: { $regex: new RegExp("^" + user, "i") } }}
 
-class userInfo {
+class userFunction {
 
 	/**
 	 *
@@ -24,7 +24,7 @@ class userInfo {
 	 * @returns {Object} - The user object.
 	 * @throws {Error} - If user not found or if getting user info fails.
 	 * @example
-	 * const user = await userInfo.getInfo("username", "authedUser", false);
+	 * const user = await userFunction.getInfo("username", "authedUser", false);
 	 * console.log(user); // { _id: ..., username: ..., ... }
 	 */
 	async getInfo(username, authedUser, isID) {
@@ -86,7 +86,7 @@ class userInfo {
 
 			return data;
 		} catch (error) {
-			throw new Error(MESSAGE.failedToGetUserInfo(error));
+			throw new Error(MESSAGE.failedToGetuserFunction(error));
 		}
 	}
 
@@ -373,7 +373,7 @@ class userInfo {
 	 * @returns {Promise<Array>} - A Promise that resolves to an array of notification objects.
 	 * @throws {Error} If getting notifications fails.
 	 * @example
-	 * const notifications = await userInfo.getNotifications("username");
+	 * const notifications = await userFunction.getNotifications("username");
 	 * console.log(notifications); // [ { _id: ..., user: ..., title: ..., ... }, ... ]
 	 * @returns {Promise<Array>} - An array of notification objects.
 	 * @throws {Error} - If getting notifications fails.
@@ -424,7 +424,7 @@ class userInfo {
     }
 
 
-	// const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags);
+	// const updatedUser = await userFunction.updateUser(authedUser, name, residence, birthday, profession, tags);
 	
 	async updateUser(authedUser, name, residence, birthday, profession, tags, path) {
 		try {
@@ -538,4 +538,4 @@ class userInfo {
 	
 	
 };
-module.exports = userInfo
+module.exports = userFunction

@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const User = require('../../routes/user/user.model.js');
 
 const Notification = require('../../models/notification.model.js');
-const userInfo = new (require('../../functions/user.function.js'));
+const userFunction = new (require('../../functions/user.function.js'));
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const imageType = require('file-type-mime').parse;
@@ -188,7 +188,7 @@ const updateUser = async (req, res, next) => {
 		image.write(imageBuffer);
 		image.end();
 
-		const updatedUser = await userInfo.updateUser(authedUser, name, residence, birthday, profession, tags, path);
+		const updatedUser = await userFunction.updateUser(authedUser, name, residence, birthday, profession, tags, path);
 
 		return res.status(200).json({ message: MESSAGE.userUpdatedSuccessfully, success: true });
 	} catch (error) {
@@ -209,7 +209,7 @@ const addFriend = async (req, res, next) => {
 			return res.status(500).json({ message: MESSAGE.cannotAddYourself, success: false })
 		}
 
-        const updatedUser = await userInfo.addFriend(username);
+        const updatedUser = await userFunction.addFriend(username);
 
         return res.status(200).json({ message: MESSAGE.friendAddedSuccessfully, success: false   });
     } catch (error) {
@@ -227,7 +227,7 @@ const sendMessage = async (req, res, next) => {
         const { title, content } = req.body;
 
         // Call the createNotification method to create the notification
-        const newNotification = await userInfo.createNotification(username, title, content, UD._id);
+        const newNotification = await userFunction.createNotification(username, title, content, UD._id);
 
         // Return the created notification in the response
         return res.status(200).json({
@@ -247,7 +247,7 @@ const getNotifications = async (req, res, next) => {
 
         // Continue with retrieving notifications for the current user
         // Example logic to retrieve notifications...
-        const notifications = await userInfo.getNotifications(id);
+        const notifications = await userFunction.getNotifications(id);
 
         // Return the notifications
         res.status(200).json({ data: notifications, success: true });
@@ -264,7 +264,7 @@ const getUser = async (req, res, next) => {
 		
 		let isID = ObjectId.isValid(username)
 		
-		userInfo.getInfo(username, authedUser, isID).then(data => {
+		userFunction.getInfo(username, authedUser, isID).then(data => {
 	
 			// need to stringify to fix for model
 			//_id: new ObjectId('65fa9784b2faffeafca95f20'),

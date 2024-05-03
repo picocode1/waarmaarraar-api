@@ -1,6 +1,8 @@
 // messages.js
 
-const { error } = require("winston");
+const {
+	error
+} = require("winston");
 
 const MESSAGE = {
 
@@ -21,7 +23,7 @@ const MESSAGE = {
 		URLNotFound: 'URL not found',
 
 		// user.function.js
-		failedToGetUserInfo: error => `Failed to get user info: ${error.message}`,
+		failedToGetuserFunction: error => `Failed to get user info: ${error.message}`,
 		userNotFound: 'User not found',
 		roleNotFound: 'Role not found',
 		userNotAdministrator: 'User is not an administrator',
@@ -88,8 +90,8 @@ const MESSAGE = {
 		friendAddedSuccessfully: 'Friend added successfully',
 		notificationCreatedSuccessfully: 'Notification created successfully',
 		invalidImageType: 'Invalid image type',
-		couldNotRegisterUser: error => `Could not register user: ${error.message}`,
 		cantLogin: error => `Can't login: ${error.message}`,
+		couldNotRegisterUser: error => `Could not register user: ${error.message}`,
 		couldNotUpdateUser: error => `Could not update user: ${error.message}`,
 		couldNotGetUser: error => `Could not get user: ${error.message}`,
 		couldNotGetTextDB: error => `Could not get textDB: ${error.message}`,
@@ -125,7 +127,7 @@ const MESSAGE = {
 		URLNotFound: 'URL niet gevonden',
 
 		// user.function.js
-		failedToGetUserInfo: error => `Het ophalen van gebruikersgegevens is mislukt: ${error.message}`,
+		failedToGetuserFunction: error => `Het ophalen van gebruikersgegevens is mislukt: ${error.message}`,
 		userNotFound: 'Gebruiker niet gevonden',
 		roleNotFound: 'Rol niet gevonden',
 		userNotAdministrator: 'Gebruiker is geen beheerder',
@@ -192,8 +194,8 @@ const MESSAGE = {
 		friendAddedSuccessfully: 'Vriend succesvol toegevoegd',
 		notificationCreatedSuccessfully: 'Notificatie succesvol aangemaakt',
 		invalidImageType: 'Ongeldig afbeeldingstype',
-		couldNotRegisterUser: error => `Gebruiker kon niet worden geregistreerd: ${error.message}`,
 		cantLogin: error => `Kan niet inloggen: ${error.message}`,
+		couldNotRegisterUser: error => `Gebruiker kon niet worden geregistreerd: ${error.message}`,
 		couldNotUpdateUser: error => `Gebruiker kon niet worden bijgewerkt: ${error.message}`,
 		couldNotGetUser: error => `Gebruiker kon niet worden opgehaald: ${error.message}`,
 		couldNotGetTextDB: error => `Tekstdatabase kon niet worden opgehaald: ${error.message}`,
@@ -225,7 +227,7 @@ const MESSAGE = {
 		URLNotFound: 'URL nicht gefunden',
 
 		// user.function.js
-		failedToGetUserInfo: error => `Fehler beim Abrufen von Benutzerinformationen: ${error.message}`,
+		failedToGetuserFunction: error => `Fehler beim Abrufen von Benutzerinformationen: ${error.message}`,
 		userNotFound: 'Benutzer nicht gefunden',
 		roleNotFound: 'Rolle nicht gefunden',
 		userNotAdministrator: 'Benutzer ist kein Administrator',
@@ -292,8 +294,8 @@ const MESSAGE = {
 		friendAddedSuccessfully: 'Freund erfolgreich hinzugefügt',
 		notificationCreatedSuccessfully: 'Benachrichtigung erfolgreich erstellt',
 		invalidImageType: 'Ungültiger Bildtyp',
-		couldNotRegisterUser: error => `Benutzer konnte nicht registriert werden: ${error.message}`,
 		cantLogin: error => `Anmeldung fehlgeschlagen: ${error.message}`,
+		couldNotRegisterUser: error => `Benutzer konnte nicht registriert werden: ${error.message}`,
 		couldNotUpdateUser: error => `Benutzer konnte nicht aktualisiert werden: ${error.message}`,
 		couldNotGetUser: error => `Benutzer konnte nicht abgerufen werden: ${error.message}`,
 		couldNotGetTextDB: error => `Text-Datenbank konnte nicht abgerufen werden: ${error.message}`,
