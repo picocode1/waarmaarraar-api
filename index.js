@@ -153,9 +153,10 @@ fs.readdirSync('./routes').forEach(file => {
 app.get("/api", (req, res) => {
 	const sortedRoutes = [...urls].sort((a, b) => {
 		// Extract path prefixes
+
 		const prefixA = a.split('/')[1];
 		const prefixB = b.split('/')[1];
-
+		
 		// Compare path prefixes first
 		const prefixComparison = prefixA.localeCompare(prefixB);
 		if (prefixComparison !== 0) return prefixComparison

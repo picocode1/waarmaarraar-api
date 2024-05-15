@@ -20,6 +20,9 @@ const MESSAGE = require('../../textDB/messages.text')[process.env.LANGUAGE];
 const _textDB = require('../../textDB/messages.text');
 
 
+const emoji = require('node-emoji');
+
+
 const createPost = async (req, res) => {
     try {
 		// If authentication succeeds, continue with createPost logic
@@ -110,7 +113,7 @@ const addComment = async (req, res) => {
             _id: new mongoose.Types.ObjectId(),
 			user: userData._id,
 			
-			content,
+			content: emoji.unemojify(content),
 			post_id,
 			created_at: new Date(),
         });
@@ -505,6 +508,21 @@ const textDB = async (req, res, next) => {
 }
 
 
+const addLike = async (req, res) => {
+	try {
+		const { commentId } = req.params; // Extract comment ID from the request parameters
+		const userId = req.userData._id; // Extract user ID from authenticated user data
+		const username = req.userData.username; // Extract user username from authenticated user data
+
+		// Call addLike method from userFunction to add like to the comment
+		const updatedPost = await userFunction.addLike(commentId, userId, username);
+
+		return res.status(200).json({ message: MESSAGE.postLiked, success: true });
+	} catch (error) {
+		return res.status(500).json({ message: MESSAGE.couldNotAddLike(error), success: false });
+	}
+}
+
 const addFollower = async (req, res) => {
     try {
         const { username } = req.params; // Extract username of the user to follow
@@ -558,5 +576,6 @@ module.exports = {
 	getPostById,
 	getFollowingPosts,
 	readNotification,
-	textDB
+	textDB,
+	addLike
 }

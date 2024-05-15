@@ -182,7 +182,7 @@ const updateUser = async (req, res, next) => {
 		// should be like "661f9b533fb2c0bcd0366685.png"
         const fileName = `${authedUser._id}.${extension}`;
 
-		let path = `/images/${fileName}`
+		let path = `https://dockertest.dego.dev/images/${fileName}`
 
 		// Save the image to the public/images folder
 		const image = fs.createWriteStream("public" + path);

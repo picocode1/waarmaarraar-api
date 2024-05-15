@@ -18,6 +18,7 @@ const commentSchema = new mongoose.Schema({
     },
     content: String,
     created_at: Date,
+	liked_by: Array,
 	// is_emoji: Boolean,
 	// emoji: String
 }, { versionKey: false });

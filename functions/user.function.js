@@ -416,7 +416,7 @@ class userFunction {
 					select: 'name displayName color' // Select the name of the role, or more fields if needed
 				}
 			});
-			console.log(articles);
+			// console.log(articles);
             return articles;
         } catch (error) {
 			throw new Error(MESSAGE.failedToGetArticles(error));
@@ -509,6 +509,51 @@ class userFunction {
 		}
 	}
 
+	// const commentSchema = new mongoose.Schema({
+	// 	_id: {
+	// 		type: mongoose.Schema.Types.ObjectId,
+	// 		required: true,
+	// 		auto: true,
+	// 	},
+	// 	user: {
+	// 		type: mongoose.Schema.Types.ObjectId,
+	// 		ref: 'User', // Refers to the User model
+	// 		required: true
+	// 	},
+	// 	post_id: {
+	// 		type: mongoose.Schema.Types.ObjectId,
+	// 		ref: 'Post', // Refers to the User model
+	// 		required: true
+	// 	},
+	// 	content: String,
+	// 	created_at: Date,
+	// 	likes: Number,
+	// 	liked_by: [Array],
+	// 	// is_emoji: Boolean,
+	// 	// emoji: String
+	// }, { versionKey: false });
+	async addLike(commentId, userId, username) {
+		try {
+			// Find the comment by ID
+			const comment = await Comments.findById(commentId);
+			if (!comment) {
+				throw new Error(MESSAGE.commentNotFound);
+			}
+
+			// Check if the user has already liked the comment
+			if (comment.liked_by.includes(userId)) {
+				throw new Error(MESSAGE.alreadyLikedComment);
+			}
+			
+			comment.liked_by.push(userId);
+			await comment.save();
+
+			return comment;
+		}
+		catch (error) {
+			throw new Error(error);
+		}
+	}
 
 //	async areFriends(userId1, userId2) {
 //		try {

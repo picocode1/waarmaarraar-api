@@ -79,5 +79,6 @@ router.post('/readNotification/:notificationId', jwtCheck, forumRateLimit, (req,
 
 router.get('/textDB/:property?', /* jwtCheck ,*/ forumRateLimit, (req, res) => forumService.textDB(req, res));
 
+router.post('/addLike/:commentId', jwtCheck, forumRateLimit, (req, res) => forumService.addLike(req, res));
 
 module.exports = router;
