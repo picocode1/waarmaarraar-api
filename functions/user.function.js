@@ -34,34 +34,14 @@ class userFunction {
 			let userData;
 	
 			if (isID) {
-				userData = await User.findById(username)
-					.select('-password')
-					.populate({
-						path: 'role',
-						select: 'name displayName color'
-					})		
+				userData = await User.findById(username).select('-password').populate({ path: 'role', select: 'name displayName color' })		
 			} else {
-				userData = await User.findOne(getUsername(username))
-					.select('-password')
-					.populate({
-						path: 'role',
-						select: 'name displayName color'
-					})
+				userData = await User.findOne(getUsername(username)).select('-password').populate({ path: 'role', select: 'name displayName color' })
 			}
 	
-			if (!userData) {
-				return { message: MESSAGE.userNotFound, success: false };
-			}
+			if (!userData) return { message: MESSAGE.userNotFound, success: false };
 	
-			const connectionData = await Connection.findOne({ user: userData._id })
-				.populate({
-					path: 'followers',
-					select: 'username _id'
-				})
-				.populate({
-					path: 'following',
-					select: 'username _id'
-				});
+			const connectionData = await Connection.findOne({ user: userData._id }).populate({ path: 'followers', select: 'username _id' }).populate({ path: 'following', select: 'username _id' });
 
 			let data = JSON.parse(JSON.stringify(userData));
 			
@@ -72,17 +52,14 @@ class userFunction {
 				data.age = age;
 			}
 
+			// Set the user's followers and following
 			data.followers = connectionData.followers;
 			data.following = connectionData.following;
 
-
-			// console.log(typeof(userData))
-
+			// Check if user has private profile and if the authenticated user is not the same as the user
 			if (userData.private && authedUser !== username) {
 				return { username: userData.username, profile_picture: userData.profile_picture }
 			}
-			
-			// console.log(userData);
 
 			return data;
 		} catch (error) {
@@ -416,7 +393,7 @@ class userFunction {
 					select: 'name displayName color' // Select the name of the role, or more fields if needed
 				}
 			});
-			// console.log(articles);
+			console.log(articles);
             return articles;
         } catch (error) {
 			throw new Error(MESSAGE.failedToGetArticles(error));

@@ -19,6 +19,7 @@ const userRateLimit = rateLimit({
     statusCode: 200,
     handler: function (req, res, next) {
         res.status(429).json({
+			resetTime: Math.floor(new Date(req.rateLimit.resetTime).getTime() / 1000),
             message: MESSAGE.tooManyRequests,
             success: false
         });
@@ -31,6 +32,7 @@ const loginRegisterRateLimit = rateLimit({
     max: 5, // 10 requests per minute
     handler: function (req, res, next) {
         res.status(429).json({
+			resetTime: Math.floor(new Date(req.rateLimit.resetTime).getTime() / 1000),
             message: MESSAGE.tooManyRequestsForLoginOrRegister,
             success: false
         });
@@ -40,6 +42,7 @@ const loginRegisterRateLimit = rateLimit({
 
 // If anything is required with jwt/logged in user
 const jwtCheck = require('../../middleware/jwt.middleware');
+// const { request } = require('express');
 // router.post('/x', jwt, (req, res) => userService.x(req, res));
 
 

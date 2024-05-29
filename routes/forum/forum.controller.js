@@ -23,6 +23,7 @@ const forumRateLimit = rateLimit({
     statusCode: 200,
     handler: function (req, res, next) {
         res.status(429).json({
+			resetTime: Math.floor(new Date(req.rateLimit.resetTime).getTime() / 1000),
             message: MESSAGE.tooManyRequests,
             success: false
         });
@@ -34,6 +35,7 @@ const sendMessageRateLimit = rateLimit({
     max: 15, // for example, 5 requests per minute
     handler: function (req, res, next) {
         res.status(429).json({
+			resetTime: Math.floor(new Date(req.rateLimit.resetTime).getTime() / 1000),
             message: MESSAGE.tooManyRequestsForSendingMessages,
             success: false
         });
@@ -47,6 +49,7 @@ const forumRateLimitPosting = rateLimit({
     statusCode: 200,
     handler: function (req, res, next) {
         res.status(429).json({
+			resetTime: Math.floor(new Date(req.rateLimit.resetTime).getTime() / 1000),
             message: MESSAGE.tooManyRequests,
             success: false
         });

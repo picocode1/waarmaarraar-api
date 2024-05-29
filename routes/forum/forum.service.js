@@ -419,11 +419,25 @@ const getConversation = async (req, res) => {
     }
 };
 
+const readNotification = async (req, res) => {
+	try {
+        const userId = req.userData._id;
+		const notificationId = req.params.notificationId;
 
+		// Call readNotification method from userFunction to mark the notification as read
+		const updatedNotification = await userFunction.readNotification(notificationId, userId);
+
+		return res.status(200).json({ message: MESSAGE.notificationRead, success: true });
+	} catch (error) {
+		return res.status(500).json({ message: MESSAGE.couldNotReadNotification(error), success: false });
+	}
+}
 
 const getChatContacts = async (req, res) => {
     try {
         const userId = req.userData._id;
+
+
 
         // Find all unique sender and receiver IDs where the authenticated user is involved
         const messages = await Messages.find({
@@ -451,19 +465,7 @@ const getChatContacts = async (req, res) => {
     }
 };
 
-const readNotification = async (req, res) => {
-	try {
-        const userId = req.userData._id;
-		const notificationId = req.params.notificationId;
 
-		// Call readNotification method from userFunction to mark the notification as read
-		const updatedNotification = await userFunction.readNotification(notificationId, userId);
-
-		return res.status(200).json({ message: MESSAGE.notificationRead, success: true });
-	} catch (error) {
-		return res.status(500).json({ message: MESSAGE.couldNotReadNotification(error), success: false });
-	}
-}
 
 const textDB = async (req, res, next) => {
 	try {
