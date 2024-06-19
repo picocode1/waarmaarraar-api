@@ -32,13 +32,15 @@ class userFunction {
 			console.log({ "getInfo": username });
 	
 			let userData;
-	
+
+
 			if (isID) {
-				userData = await User.findById(username).select('-password').populate({ path: 'role', select: 'name displayName color' })		
+				userData = await User.findById(username).select('-password').populate({ path: 'role', select: 'name displayName color' })
 			} else {
 				userData = await User.findOne(getUsername(username)).select('-password').populate({ path: 'role', select: 'name displayName color' })
 			}
-	
+			console.log(userData);
+			
 			if (!userData) return { message: MESSAGE.userNotFound, success: false };
 	
 			const connectionData = await Connection.findOne({ user: userData._id }).populate({ path: 'followers', select: 'username _id' }).populate({ path: 'following', select: 'username _id' });

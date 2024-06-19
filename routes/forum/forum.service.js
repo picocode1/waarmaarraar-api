@@ -63,6 +63,7 @@ const createPost = async (req, res) => {
 
         // Save the post to the database
         const savedPost = await newPost.save();
+		console.log(isArticle);
 
 		if (isArticle) {
 			// Increment the article_count field in the user document
@@ -487,7 +488,7 @@ const textDB = async (req, res, next) => {
 	
 				text[lang] = _textDB[lang][property];
 			}
-	
+			
 			text.success = true;
 			res.json(text);
 		} else {

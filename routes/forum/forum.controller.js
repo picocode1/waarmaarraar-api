@@ -32,7 +32,7 @@ const forumRateLimit = rateLimit({
 
 const sendMessageRateLimit = rateLimit({
     windowMs: helper.toMinutes(1), // for example, 1 minute
-    max: 15, // for example, 5 requests per minute
+    max: 15, // for example, 15 requests per minute
     handler: function (req, res, next) {
         res.status(429).json({
 			resetTime: Math.floor(new Date(req.rateLimit.resetTime).getTime() / 1000),

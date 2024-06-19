@@ -116,16 +116,20 @@ const logger = createLogger({
 
 // Middleware to log requests
 app.use((req, res, next) => {
-	// URL Decoding for logging
-	const URL = decodeURIComponent(req.originalUrl);
-	let loggerText = `${req.method} ${URL}`;
-
-	if (req.method === 'POST' && req.body) {
-		loggerText += `\n\t\t        Request Body: ${JSON.stringify(req.body)}`;
+	try {
+		// URL Decoding for logging
+		const URL = decodeURIComponent(req.originalUrl);
+		let loggerText = `${req.method} ${URL}`;
+	
+		if (req.method === 'POST' && req.body) {
+			loggerText += `\n\t\t        Request Body: ${JSON.stringify(req.body)}`;
+		}
+	
+		logger.info(loggerText);
+		next();
+	} catch (error) {
+		logger.error("Error logging request:", error);
 	}
-
-	logger.info(loggerText);
-	next();
 });
 
 // Set headers for CORS

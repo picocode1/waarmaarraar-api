@@ -47,6 +47,7 @@ const loginUser = async (req, res, next) => {
         // Generate JWT token
         const token = jwt.sign({ _id: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '31d' });
 
+
         // Attach user and token to request object
         req.user = user;
         req.token = token;
@@ -182,14 +183,15 @@ const updateUser = async (req, res, next) => {
 		// should be like "661f9b533fb2c0bcd0366685.png"
         const fileName = `${authedUser._id}.${extension}`;
 
-		let path = `https://dockertest.dego.dev/images/${fileName}`
+		let path = `/images/${fileName}`
+		let fullUrl = `https://${process.env.DOMAIN}${path}`;
 
 		// Save the image to the public/images folder
 		const image = fs.createWriteStream("public" + path);
 		image.write(imageBuffer);
 		image.end();
 
-		const updatedUser = await userFunction.updateUser(authedUser, name, residence, birthday, profession, tags, path);
+		await userFunction.updateUser(authedUser, name, residence, birthday, profession, tags, fullUrl);
 
 		return res.status(200).json({ message: MESSAGE.userUpdatedSuccessfully, success: true });
 	} catch (error) {
@@ -241,6 +243,7 @@ const sendMessage = async (req, res, next) => {
         return res.status(500).json({ message: MESSAGE.couldNotSendMessage(error), success: false});
     }
 };
+
 
 const getNotifications = async (req, res, next) => {
     try {
