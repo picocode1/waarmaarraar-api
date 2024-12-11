@@ -1,3 +1,5 @@
+[Swaggerhub Documentation](https://app.swaggerhub.com/apis-docs/RIKFERON/test/1.0.0)
+
 ```js
 GET /api
 GET /forum/chatContacts
